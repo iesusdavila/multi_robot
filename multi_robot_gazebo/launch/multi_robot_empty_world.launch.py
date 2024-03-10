@@ -17,6 +17,8 @@ def generate_robots(num_robots):
     return robots 
 
 def generate_launch_description():
+    ld = LaunchDescription()
+
     launch_file_dir = os.path.join(get_package_share_directory('multi_robot_gazebo'), 'launch')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
 
@@ -43,8 +45,9 @@ def generate_launch_description():
         )
     )
 
-    list_robot_state_publisher_cmd = []
-    list_spawn_turtlebot_cmd = []
+    ld.add_action(gzserver_cmd)
+    ld.add_action(gzclient_cmd)
+
     for robot in robots:
         robot_state_publisher_cmd = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
@@ -75,19 +78,7 @@ def generate_launch_description():
             }.items()
         )
 
-        list_robot_state_publisher_cmd.append(robot_state_publisher_cmd)
-        list_spawn_turtlebot_cmd.append(spawn_turtlebot_cmd)
-
-    ld = LaunchDescription()
-
-    # Add the commands to the launch description
-    ld.add_action(gzserver_cmd)
-    ld.add_action(gzclient_cmd)
-    
-    for robot_state_publisher_cmd in list_robot_state_publisher_cmd:
         ld.add_action(robot_state_publisher_cmd)
-    
-    for spawn_turtlebot_cmd in list_spawn_turtlebot_cmd:
         ld.add_action(spawn_turtlebot_cmd)
 
     return ld
