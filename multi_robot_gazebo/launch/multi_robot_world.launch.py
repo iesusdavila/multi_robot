@@ -5,9 +5,10 @@ from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, TextSubstitution
+from launch.conditions import IfCondition
 
 def generate_robots(num_robots):
-    
+
     robots = [
         {'name': 'tb1', 'x_pose': '-1.5', 'y_pose': '-0.5', 'z_pose': 0.01, 'yaw': 0.0},
         {'name': 'tb2', 'x_pose': '-1.5', 'y_pose': '0.5', 'z_pose': 0.01, 'yaw': 0.0},
@@ -20,8 +21,10 @@ def generate_launch_description():
 
     launch_file_dir = os.path.join(get_package_share_directory('multi_robot_gazebo'), 'launch')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
+    pkg_multi_robot_navigation = get_package_share_directory('multi_robot_navigation')
 
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
+    navigation = LaunchConfiguration('navigation', default='false')
 
     world = os.path.join(
         get_package_share_directory('turtlebot3_gazebo'),
@@ -77,7 +80,23 @@ def generate_launch_description():
             }.items()
         )
 
+        navigation_turtlebot_cmd = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(pkg_multi_robot_navigation, 'launch', 'multi_navigation.launch.py')
+            ),
+            launch_arguments={
+                'use_sim_time': use_sim_time,
+                'robot_namespace': ['/' + robot['name']],
+                'x_pose': TextSubstitution(text=str(robot['x_pose'])),
+                'y_pose': TextSubstitution(text=str(robot['y_pose'])),
+                'rviz_config_file': os.path.join(pkg_multi_robot_navigation, 'rviz', 'multi_nav2_default_view.rviz'),
+                'nav_params_file': os.path.join(pkg_multi_robot_navigation, 'params', 'nav2_params.yaml'),
+            }.items(),
+            condition=IfCondition(navigation)
+        )
+
         ld.add_action(robot_state_publisher_cmd)
         ld.add_action(spawn_turtlebot_cmd)
+        ld.add_action(navigation_turtlebot_cmd)
 
     return ld
