@@ -32,6 +32,12 @@ def generate_launch_description():
         'y_pose', default_value='0.0', description='Initial y position of robot'
     )
 
+    map_yaml_file = LaunchConfiguration('map_yaml_file', default=os.path.join(get_package_share_directory('turtlebot3_navigation2'), 'map', 'map.yaml'))
+    declare_map_yaml_cmd = DeclareLaunchArgument(
+        'map_yaml_file', default_value=os.path.join(get_package_share_directory('turtlebot3_navigation2'), 'map', 'map.yaml'),
+        description='Full path to map file to load'
+    )
+
     use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     declare_use_sim_time = DeclareLaunchArgument(
         name='use_sim_time', default_value=use_sim_time, description='Use simulator time'
@@ -56,7 +62,7 @@ def generate_launch_description():
         executable='map_server',
         name='map_server',
         output='screen',
-        parameters=[{'yaml_filename': os.path.join(get_package_share_directory('turtlebot3_navigation2'), 'map', 'map.yaml')}],
+        parameters=[{'yaml_filename': map_yaml_file}],
         remappings=remappings)
 
     map_server_lifecyle=Node(package='nav2_lifecycle_manager',
@@ -75,7 +81,7 @@ def generate_launch_description():
             'slam': 'False',
             'namespace': robot_namespace,
             'use_namespace': 'True',
-            'map': '',
+            'map': map_yaml_file,
             'map_server': 'False',
             'params_file': params_file,
             'default_bt_xml_filename': os.path.join(
@@ -112,6 +118,7 @@ def generate_launch_description():
     ld.add_action(declare_robot_namespace)
     ld.add_action(declare_x_pose)
     ld.add_action(declare_y_pose)
+    ld.add_action(declare_map_yaml_cmd)
 
     ld.add_action(map_server)
     ld.add_action(map_server_lifecyle)
