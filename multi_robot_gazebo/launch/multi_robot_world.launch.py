@@ -91,6 +91,7 @@ def generate_launch_description():
                 'y_pose': TextSubstitution(text=str(robot['y_pose'])),
                 'rviz_config_file': os.path.join(pkg_multi_robot_navigation, 'rviz', 'multi_nav2_default_view.rviz'),
                 'nav_params_file': os.path.join(pkg_multi_robot_navigation, 'params', 'nav2_params.yaml'),
+                'map_yaml_file': os.path.join(pkg_multi_robot_navigation, 'maps', 'map_world.yaml'),
             }.items(),
             condition=IfCondition(navigation)
         )
