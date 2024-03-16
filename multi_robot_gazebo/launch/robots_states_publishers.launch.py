@@ -9,12 +9,12 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
+    
+    urdf_path = LaunchConfiguration('urdf_path', default=os.path.join(get_package_share_directory('turtlebot3_gazebo'), 'urdf', 'turtlebot3_burger.urdf'))
 
-    urdf_file_name = 'turtlebot3_burger.urdf'
-    urdf_path = os.path.join(
-        get_package_share_directory('turtlebot3_gazebo'),
-        'urdf',
-        urdf_file_name)
+    declare_urdf_path = DeclareLaunchArgument(
+        'urdf_path', default_value=os.path.join(get_package_share_directory('turtlebot3_gazebo'), 'urdf', 'turtlebot3_burger.urdf'),
+        description='Urdf path of the robot')
 
     robot_namespace = LaunchConfiguration('robot_namespace', default='tb')
 
@@ -37,6 +37,7 @@ def generate_launch_description():
 
     ld = LaunchDescription()
 
+    ld.add_action(declare_urdf_path)
     ld.add_action(declare_robot_namespace)
     ld.add_action(turtlebot_state_publisher)
 

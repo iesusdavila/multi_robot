@@ -57,11 +57,8 @@ def generate_launch_description():
             ),
             launch_arguments={
                 'use_sim_time': use_sim_time,
-                'x_pose': TextSubstitution(text=str(robot['x_pose'])),
-                'y_pose': TextSubstitution(text=str(robot['y_pose'])),
-                'z_pose': TextSubstitution(text=str(robot['z_pose'])),
-                'robot_name': robot['name'],
                 'robot_namespace': robot['name'],
+                'urdf_path': robot['urdf_path'],
             }.items()
         )
 
@@ -71,6 +68,7 @@ def generate_launch_description():
             ),
             launch_arguments={
                 'use_sim_time': use_sim_time,
+                'urdf_path': robot['sdf_path'],
                 'x_pose': TextSubstitution(text=str(robot['x_pose'])),
                 'y_pose': TextSubstitution(text=str(robot['y_pose'])),
                 'z_pose': TextSubstitution(text=str(robot['z_pose'])),

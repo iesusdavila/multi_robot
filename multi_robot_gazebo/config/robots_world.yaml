@@ -4,8 +4,19 @@ robots:
     y_pose: -0.5
     z_pose: 0.01
     yaw: 0.0
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_burger.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf"
   - name: tb2
     x_pose: -1.5
     y_pose: 0.5
     z_pose: 0.01
     yaw: 0.0
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf"
+  - name: tb3
+    x_pose: 1.5
+    y_pose: 0.5
+    z_pose: 0.01
+    yaw: 0.0
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle_pi.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle_pi/model.sdf"

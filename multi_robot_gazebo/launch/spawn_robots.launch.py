@@ -9,21 +9,18 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
-
-    model_folder = 'turtlebot3_burger'
-    urdf_path = os.path.join(
-        get_package_share_directory('turtlebot3_gazebo'),
-        'models',
-        model_folder,
-        'model.sdf'
-    )
-
+    urdf_path = LaunchConfiguration('urdf_path', 
+                        default=os.path.join(get_package_share_directory('turtlebot3_gazebo'), 'models', 'turtlebot3_burger', 'model.sdf'))
     robot_namespace = LaunchConfiguration('robot_namespace', default='tb')
     robot_name = LaunchConfiguration('robot_name', default='tb')
     x_pose = LaunchConfiguration('x_pose', default='0.0')
     y_pose = LaunchConfiguration('y_pose', default='0.0')
     z_pose = LaunchConfiguration('z_pose', default='0.01')
     yaw = LaunchConfiguration('yaw', default='0.0')
+
+    declare_urdf_path = DeclareLaunchArgument(
+        'urdf_path', default_value=os.path.join(get_package_share_directory('turtlebot3_gazebo'), 'models', 'turtlebot3_burger', 'model.sdf'),
+        description='Urdf path of the robot')
 
     declare_robot_namespace = DeclareLaunchArgument(
         'robot_namespace', default_value='tb',
@@ -67,6 +64,7 @@ def generate_launch_description():
 
     ld = LaunchDescription()
 
+    ld.add_action(declare_urdf_path)
     ld.add_action(declare_robot_namespace)
     ld.add_action(declare_robot_name)
     ld.add_action(declare_x_pose)
