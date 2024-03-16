@@ -6,16 +6,15 @@ from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, TextSubstitution
 from launch.conditions import IfCondition
+import yaml
 
-def generate_robots(num_robots):
-    robots = []
+def generate_robots():
+    robots_file = os.path.join(get_package_share_directory('multi_robot_gazebo'), 'config', 'robots_empty_world.yaml')
 
-    for i in range(num_robots):
-        robot_name = "tb_"+str(i)
-        x_pos = float(i)
-        robots.append({'name': robot_name, 'x_pose': x_pos, 'y_pose': 0.0, 'z_pose': 0.01, 'yaw': 0.0})
+    with open(robots_file, 'r') as file:
+        robots_data = yaml.safe_load(file)
 
-    return robots 
+    return robots_data['robots']
 
 def generate_launch_description():
     ld = LaunchDescription()
@@ -33,7 +32,7 @@ def generate_launch_description():
         'empty_world.world'
     )
 
-    robots = generate_robots(4)
+    robots = generate_robots()
 
     gzserver_cmd = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(

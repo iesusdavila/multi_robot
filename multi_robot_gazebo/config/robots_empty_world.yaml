@@ -1,0 +1,26 @@
+robots:
+  - name: tb1
+    x_pose: 0.0
+    y_pose: 0.0
+    z_pose: 0.01
+    yaw: 0.0
+  - name: tb2
+    x_pose: 1.0
+    y_pose: 1.0
+    z_pose: 0.01
+    yaw: 0.0
+  - name: tb3
+    x_pose: -1.0
+    y_pose: 1.0
+    z_pose: 0.01
+    yaw: 0.0
+  - name: tb4
+    x_pose: -1.0
+    y_pose: -1.0
+    z_pose: 0.01
+    yaw: 0.0
+  - name: tb5
+    x_pose: 1.0
+    y_pose: -1.0
+    z_pose: 0.01
+    yaw: 0.0
