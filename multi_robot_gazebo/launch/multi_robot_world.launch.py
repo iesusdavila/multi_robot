@@ -62,7 +62,7 @@ def generate_launch_description():
             }.items()
         )
 
-        spawn_turtlebot_cmd = IncludeLaunchDescription(
+        spawn_entity_cmd = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 os.path.join(launch_file_dir, 'spawn_robots.launch.py')
             ),
@@ -78,7 +78,7 @@ def generate_launch_description():
             }.items()
         )
 
-        navigation_turtlebot_cmd = IncludeLaunchDescription(
+        navigation_robot_cmd = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
                 os.path.join(pkg_multi_robot_navigation, 'launch', 'multi_navigation.launch.py')
             ),
@@ -95,7 +95,7 @@ def generate_launch_description():
         )
 
         ld.add_action(robot_state_publisher_cmd)
-        ld.add_action(spawn_turtlebot_cmd)
-        ld.add_action(navigation_turtlebot_cmd)
+        ld.add_action(spawn_entity_cmd)
+        ld.add_action(navigation_robot_cmd)
 
     return ld
