@@ -27,9 +27,9 @@ def generate_launch_description():
     navigation = LaunchConfiguration('navigation', default='false')
 
     world = os.path.join(
-        get_package_share_directory('turtlebot3_gazebo'),
+        get_package_share_directory('multi_robot_gazebo'),
         'worlds',
-        'turtlebot3_house.world'
+        'house.world'
     )
 
     robots = generate_robots()
