@@ -107,7 +107,6 @@ def generate_launch_description():
         launch_arguments={
             'use_sim_time': use_sim_time, 
             'namespace': robot_namespace,
-            'use_namespace': 'True',
             'rviz_config': rviz_config_file, 'log_level': 'warn'
         }.items(),
     )
