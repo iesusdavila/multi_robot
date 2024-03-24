@@ -18,7 +18,6 @@ def generate_launch_description():
     launch_dir = os.path.join(bringup_dir, 'launch')
 
     namespace = LaunchConfiguration('namespace')
-    use_namespace = LaunchConfiguration('use_namespace')
     slam = LaunchConfiguration('slam')
     map_yaml_file = LaunchConfiguration('map')
     map_server=LaunchConfiguration('map_server')
@@ -49,11 +48,6 @@ def generate_launch_description():
         'namespace',
         default_value='',
         description='Top-level namespace')
-
-    declare_use_namespace_cmd = DeclareLaunchArgument(
-        'use_namespace',
-        default_value='false',
-        description='Whether to apply a namespace to the navigation stack')
 
     declare_slam_cmd = DeclareLaunchArgument(
         'slam',
@@ -97,9 +91,7 @@ def generate_launch_description():
     
    
     bringup_nav_group = GroupAction([
-        PushRosNamespace(
-            condition=IfCondition(use_namespace),
-            namespace=namespace),
+        PushRosNamespace(namespace=namespace),
 
         Node(
             condition=IfCondition(use_composition),
@@ -149,7 +141,6 @@ def generate_launch_description():
     ld.add_action(stdout_linebuf_envvar)
     
     ld.add_action(declare_namespace_cmd)
-    ld.add_action(declare_use_namespace_cmd)
     ld.add_action(declare_slam_cmd)
     ld.add_action(declare_map_yaml_cmd)
     ld.add_action(declare_use_sim_time_cmd)

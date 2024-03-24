@@ -80,7 +80,6 @@ def generate_launch_description():
         launch_arguments={  
             'slam': 'False',
             'namespace': robot_namespace,
-            'use_namespace': 'True',
             'map': map_yaml_file,
             'map_server': 'False',
             'params_file': params_file,
