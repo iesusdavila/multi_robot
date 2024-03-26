@@ -110,6 +110,17 @@ def generate_launch_description():
         }.items(),
     )
 
+    remappings_ekf = [('/tf', 'tf'), ('/tf_static', 'tf_static'), ('odometry/filtered', 'odom')]
+    robot_localization_node = Node(
+        package='robot_localization',
+        executable='ekf_node',
+        name='ekf_filter_node',
+        namespace=robot_namespace,
+        remappings=remappings_ekf,
+        output='screen',
+        parameters=[params_file, {'use_sim_time': use_sim_time }]
+    )
+
     ld.add_action(declare_use_sim_time)
     ld.add_action(declare_rviz_config_file_cmd)
     ld.add_action(declare_params_file_cmd)
@@ -125,5 +136,6 @@ def generate_launch_description():
     ld.add_action(declare_params_file_cmd)
     ld.add_action(initial_pose_cmd)
     ld.add_action(rviz_cmd)
+    ld.add_action(robot_localization_node)
 
     return ld
