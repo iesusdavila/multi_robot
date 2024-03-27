@@ -87,6 +87,7 @@ def generate_launch_description():
                 'robot_namespace': ['/' + robot['name']],
                 'x_pose': TextSubstitution(text=str(robot['x_pose'])),
                 'y_pose': TextSubstitution(text=str(robot['y_pose'])),
+                'rviz_view': robot['rviz_view'],
                 'rviz_config_file': os.path.join(pkg_multi_robot_navigation, 'rviz', 'multi_nav2_default_view.rviz'),
                 'nav_params_file': os.path.join(pkg_multi_robot_navigation, 'params', 'nav2_params.yaml'),
                 'map_yaml_file': os.path.join(pkg_multi_robot_navigation, 'maps', 'map_house.yaml'),
