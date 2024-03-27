@@ -43,6 +43,11 @@ def generate_launch_description():
         name='use_sim_time', default_value=use_sim_time, description='Use simulator time'
     )
 
+    rviz_view = LaunchConfiguration('rviz_view', default='false')
+    declare_rviz_view = DeclareLaunchArgument(
+        'rviz_view', default_value='false', description='View in RVIZ'
+    )
+
     rviz_config_file = LaunchConfiguration('rviz_config_file')
     declare_rviz_config_file_cmd = DeclareLaunchArgument(
         'rviz_config_file',
@@ -103,6 +108,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             os.path.join(nav_launch_dir, 'rviz.launch.py')
         ),
+        condition=IfCondition(rviz_view),
         launch_arguments={
             'use_sim_time': use_sim_time, 
             'namespace': robot_namespace,
@@ -122,6 +128,7 @@ def generate_launch_description():
     )
 
     ld.add_action(declare_use_sim_time)
+    ld.add_action(declare_rviz_view)
     ld.add_action(declare_rviz_config_file_cmd)
     ld.add_action(declare_params_file_cmd)
     ld.add_action(declare_robot_namespace)
