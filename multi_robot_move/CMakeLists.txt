@@ -25,7 +25,17 @@ install(TARGETS ${EXEC_NAME}
 )
 
 install(PROGRAMS
-  scripts/BasicNavigator.py
+  scripts/utils/NavigationClient.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(PROGRAMS
+  scripts/utils/DataRobots.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(PROGRAMS
+  scripts/utils/PoseUtils.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -35,7 +45,17 @@ install(PROGRAMS
 )
 
 install(PROGRAMS
+  scripts/nav_pose_v2.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(PROGRAMS
   scripts/nav_through_poses.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
+install(PROGRAMS
+  scripts/nav_through_poses_v2.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
