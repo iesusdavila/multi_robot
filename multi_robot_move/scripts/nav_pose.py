@@ -2,115 +2,38 @@
 
 import rclpy
 from rclpy.node import Node
-from rclpy.action import ActionClient
-from nav2_msgs.action import NavigateToPose
-from geometry_msgs.msg import PoseStamped, Quaternion
+from NavigationClient import NavigationClient
+from PoseUtils import PoseUtils
+from DataRobots import DataRobots
 import time
-import math
-import yaml
-import os
-from ament_index_python.packages import get_package_share_directory
-
-class NavigationClient(Node):
-    def __init__(self, name_robot):
-        super().__init__('navigation_client_{}'.format(name_robot))
-        
-        self.name_robot = name_robot
-        self.action_client = ActionClient(self, NavigateToPose, '/{}/navigate_to_pose'.format(name_robot))
-        self.action_client.wait_for_server()
-
-    def send_goal(self, goal_pose):
-        goal_msg = NavigateToPose.Goal()
-        goal_msg.pose = goal_pose
-
-        send_goal_future = self.action_client.send_goal_async(goal_msg)
-        rclpy.spin_until_future_complete(self, send_goal_future, timeout_sec=5.0)
-
-        if send_goal_future.result() is not None:
-            print('¡Se recibió una respuesta del robot {}!'.format(self.name_robot))
-        else:
-            print('No se recibió respuesta del robot {}. Tiempo de espera agotado.'.format(self.name_robot))
-
-    def destroy(self):
-        self.action_client.destroy()
-
-class PoseUtils:
-    def __init__(self):
-        pass
-
-    def quaternion_from_euler(self, roll, pitch, yaw):
-        cuaternion = Quaternion()
-
-        cy = math.cos(yaw * 0.5)
-        sy = math.sin(yaw * 0.5)
-        cp = math.cos(pitch * 0.5)
-        sp = math.sin(pitch * 0.5)
-        cr = math.cos(roll * 0.5)
-        sr = math.sin(roll * 0.5)
-
-        q = [0] * 4
-        q[0] = cy * cp * cr + sy * sp * sr
-        q[1] = cy * cp * sr - sy * sp * cr
-        q[2] = sy * cp * sr + cy * sp * cr
-        q[3] = sy * cp * cr - cy * sp * sr
-
-        cuaternion.x = q[0]
-        cuaternion.y = q[1]
-        cuaternion.z = q[2]
-        cuaternion.w = q[3]
-
-        return cuaternion
-
-    def create_pose(self, x, y, z, yaw=0):
-        pose = PoseStamped()
-        pose.header.frame_id = 'map'
-        pose.pose.position.x = x
-        pose.pose.position.y = y
-        pose.pose.position.z = z
-        pose.pose.orientation = self.quaternion_from_euler(0, 0, yaw)
-
-        return pose
-
-class DataRobots:
-    def __init__(self, path_file):
-        self.path_file = path_file
-
-    def generate_robots(self):
-        robots_file = self.path_file 
-        with open(robots_file, 'r') as file:
-            robots_data = yaml.safe_load(file)
-
-        return robots_data['robots']
 
 def main(args=None):
     rclpy.init(args=args)
 
     pose_utils = PoseUtils()
-    date_robots = DataRobots('/home/rov-robot/project_ws/src/multi_robot/multi_robot_gazebo/config/robots_world.yaml')
+    data_nav_robots = DataRobots('/home/rov-robot/project_ws/src/multi_robot/multi_robot_move/configs/nav_robots_world.yaml')
     
-    print(date_robots.generate_robots()[2]['name'])
-    print(date_robots.generate_robots()[1]['name'])
+    navigation_clients = []
 
-    # Define la posición de destino
-    goal_pose = pose_utils.create_pose(1.5, -0.5, 0.0, 0.0)
-    goal_pose2 = pose_utils.create_pose(-1.0, 0.5, 0.0, 0.0)
+    for nav_robot in data_nav_robots.generate_robots():
+        print(f'Robot: {nav_robot["name"]} tiene {data_nav_robots.get_number_poses(nav_robot)} poses')
+        name_robot = data_nav_robots.get_name(nav_robot)
 
-    # Crear instancias de la clase NavigationClient para cada robot
-    navigation_client_1 = NavigationClient(date_robots.generate_robots()[2]['name'])
-    navigation_client_2 = NavigationClient(date_robots.generate_robots()[1]['name'])
+        navigation_client = NavigationClient(name_robot)
+        navigation_clients.append(navigation_client)
 
-    # Envía la acción de navegación al robot 1
-    navigation_client_1.send_goal(goal_pose)
+        goal_poses = []
+        for i in range(data_nav_robots.get_number_poses(nav_robot)):
+            x, y, z, yaw = data_nav_robots.get_pose(nav_robot, i).values()
+            print(f'Pose Goal {i+1}: {x} {y} {z} {yaw} ')
+            
+            goal_poses.append(pose_utils.create_pose(x, y, z, yaw))
 
-    # Espera un momento antes de enviar la acción al siguiente robot (solo para ejemplo)
-    time.sleep(2)
+        navigation_client.send_goal_pose(goal_poses[0])
 
-    # Envía la acción de navegación al robot 2
-    navigation_client_2.send_goal(goal_pose2)
+        navigation_client.destroy()
     
-    # Destruye las instancias de NavigationClient
-    navigation_client_1.destroy()
-    navigation_client_2.destroy()
+    print("Estoy fuera del for jejej")
 
     rclpy.shutdown()
 
