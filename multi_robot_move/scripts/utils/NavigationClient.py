@@ -39,6 +39,7 @@ class BasicNavigator(Node):
 
     def __init__(self, namespace=''):
         super().__init__(node_name='navigation_client_'+namespace, namespace=namespace)
+        self.name_robot = namespace
         self.goal_handle = None
         self.result_future = None
         self.feedback = None
@@ -87,6 +88,9 @@ class BasicNavigator(Node):
         self.get_costmap_local_srv = self.create_client(
             GetCostmap, 'local_costmap/get_costmap'
         )
+
+    def getNameRobot(self):
+        return self.name_robot
 
     def destroyNode(self):
         self.destroy_node()
