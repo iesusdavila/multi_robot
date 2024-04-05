@@ -11,7 +11,7 @@ import asyncio
 
 async def navigate_robot(nav_client, goal_poses_robot, nav_start):
     pose_utils = PoseUtils()
-    
+
     nav_client.followWaypoints(goal_poses_robot)
     while not nav_client.isTaskComplete():
         await asyncio.sleep(1)  # Espera corta para permitir que otras tareas se ejecuten
@@ -32,45 +32,44 @@ async def navigate_robot(nav_client, goal_poses_robot, nav_start):
                 nav_client.cancelTask()
 
             # Some follow waypoints request change to demo preemption
-            if now - nav_start > Duration(seconds=35.0):
+            if now - nav_start > Duration(seconds=120.0):
                 goal_pose4 = pose_utils.create_pose(-1.5, 0.5, 0.0, 0.0)
                 goal_poses_robot = [goal_pose4]
                 nav_start = now
                 nav_client.followWaypoints(goal_poses_robot)
 
 async def main(args=None):
+    # REALIZAR PARA PASAR LA RUTA COMO ARGUMENTO!!! PILOSKIIIIIIII!!!!
+
+    # TAL VEZ EL SEGUNDO FOR NO SEA LO CORRECTO PORQUE VUELVE A REPETIR CODIGO
     rclpy.init(args=args)
 
     pose_utils = PoseUtils()
     data_nav_robots = DataRobots('/home/rov-robot/project_ws/src/multi_robot/multi_robot_move/configs/nav_robots_world.yaml')
 
-    # Define la posición de destino
-    goal_pose = pose_utils.create_pose(1.5, -0.5, 0.0, 0.0)
-    goal_pose2 = pose_utils.create_pose(0.0, 0.5, 0.0, 0.0)
-    goal_pose3 = pose_utils.create_pose(-1.0, 0.5, 0.0, 0.0)
+    list_robots = []
+    for robot in data_nav_robots.generate_robots():
+        dict_robots = {}
 
-    goal_poses_robot_1 = [goal_pose, goal_pose2]
-    goal_poses_robot_2 = [goal_pose2, goal_pose3]
+        dict_robots['name_robot'] = robot['name']
 
-    # Crear instancias de la clase NavigationClient para cada robot
-    name_robot_1 = str(data_nav_robots.generate_robots()[0]['name'])
-    name_robot_2 = str(data_nav_robots.generate_robots()[1]['name'])
+        list_poses_wo_process = data_nav_robots.get_list_poses(robot) # obtener lista de poses sin convertir en PoseStamped
+        list_poses_w_process = pose_utils.create_poses(list_poses_wo_process) # convertir a PoseStamped
 
-    navigation_client_1 = BasicNavigator(namespace=name_robot_1)
-    navigation_client_2 = BasicNavigator(namespace=name_robot_2)
+        dict_robots['poses_goals'] = list_poses_w_process
 
-    # Iniciar el tiempo de navegación
-    nav_start = navigation_client_1.get_clock().now()
+        list_robots.append(dict_robots)
 
-    # Ejecutar las tareas de navegación de los robots de forma concurrente
-    await asyncio.gather(
-        navigate_robot(navigation_client_1, goal_poses_robot_1, nav_start),
-        navigate_robot(navigation_client_2, goal_poses_robot_2, nav_start)
-    )
+    list_funciones = [] 
+    for robot in list_robots:
 
-    # Destruir las instancias de NavigationClient
-    # navigation_client_1.destroy()
-    # navigation_client_2.destroy()
+        navigation_client = BasicNavigator(namespace=robot['name_robot'])
+        goal_poses_robot = robot['poses_goals']
+        nav_start = navigation_client.get_clock().now()
+
+        list_funciones.append(navigate_robot(navigation_client, goal_poses_robot, nav_start))
+
+    await asyncio.gather(*list_funciones)
 
     rclpy.shutdown()
 
