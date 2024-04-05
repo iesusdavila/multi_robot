@@ -23,3 +23,9 @@ class DataRobots:
     def get_pose(self, robot, index):
         param_goal_pose = "pose_goal_" + str(index+1)
         return robot[param_goal_pose]
+
+    def get_list_poses(self, robot):
+        poses = []
+        for i in range(self.get_number_poses(robot)):
+            poses.append(self.get_pose(robot, i))
+        return poses

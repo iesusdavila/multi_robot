@@ -39,3 +39,10 @@ class PoseUtils:
         pose.pose.orientation = self.quaternion_from_euler(0, 0, yaw)
 
         return pose
+    
+    def create_poses(self, list_poses):
+        list_poses_w_process = []
+        for pose in list_poses:
+            x, y, z, yaw = pose.values()
+            list_poses_w_process.append(self.create_pose(x, y, z, yaw))
+        return list_poses_w_process
