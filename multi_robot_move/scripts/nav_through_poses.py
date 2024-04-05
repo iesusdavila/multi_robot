@@ -8,6 +8,7 @@ from DataRobots import DataRobots
 import time
 from rclpy.duration import Duration
 import asyncio
+import sys
 
 async def navigate_robot(nav_client, goal_poses_robot, nav_start):
     pose_utils = PoseUtils()
@@ -39,12 +40,19 @@ async def navigate_robot(nav_client, goal_poses_robot, nav_start):
                 nav_client.followWaypoints(goal_poses_robot)
 
 async def main(args=None):
-    # REALIZAR PARA PASAR LA RUTA COMO ARGUMENTO!!! PILOSKIIIIIIII!!!!
+    if args is None:
+        args = sys.argv
+
+    if len(args) != 2:
+        print("Usage: ros2 run multi_robot_move nav_through_poses.py <path_to_yaml_file>")
+        return
+
+    yaml_file_path = args[1]
 
     rclpy.init(args=args)
 
     pose_utils = PoseUtils()
-    data_nav_robots = DataRobots('/home/rov-robot/project_ws/src/multi_robot/multi_robot_move/configs/nav_robots_world.yaml')
+    data_nav_robots = DataRobots(yaml_file_path)
 
     list_funciones = []
     for robot in data_nav_robots.generate_robots():
@@ -52,8 +60,8 @@ async def main(args=None):
         name_robot = robot['name']
         navigation_client = BasicNavigator(namespace=name_robot)
 
-        list_poses_wo_process = data_nav_robots.get_list_poses(robot) # obtener lista de poses sin convertir en PoseStamped
-        list_poses_w_process = pose_utils.create_poses(list_poses_wo_process) # convertir a PoseStamped
+        list_poses_wo_process = data_nav_robots.get_list_poses(robot)  # obtener lista de poses sin convertir en PoseStamped
+        list_poses_w_process = pose_utils.create_poses(list_poses_wo_process)  # convertir a PoseStamped
         goal_poses_robot = list_poses_w_process
 
         nav_start = navigation_client.get_clock().now()
