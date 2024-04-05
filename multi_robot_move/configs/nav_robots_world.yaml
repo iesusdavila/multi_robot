@@ -1,23 +1,23 @@
 robots:
   - name: tb2
     pose_goal_1:
-      x: -1.5
-      y: 0.5
+      x: 1.5
+      y: -0.5
       z: 0.01
       yaw: 0.0
     pose_goal_2:
-      x: -1.4
+      x: 0.0
       y: 0.5
       z: 0.01
       yaw: 0.0
   - name: tb3
     pose_goal_1:
-      x: 1.5
-      y: 0.5
+      x: 0.0
+      y: 1.5
       z: 0.01
       yaw: 0.0
     pose_goal_2:
-      x: 1.4
+      x: -1.0
       y: 0.5
       z: 0.01
       yaw: 0.0
