@@ -1,12 +1,12 @@
 robots:
   - name: tb1
-    x_pose: -1.5
-    y_pose: -0.5
+    x_pose: 6.0
+    y_pose: -1.0
     z_pose: 0.01
-    yaw: 0.0
+    yaw: 1.5708
     rviz_view: "false"
-    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_burger.urdf"
-    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf"
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf"
   - name: tb2
     x_pose: -1.5
     y_pose: 0.5
@@ -15,3 +15,11 @@ robots:
     rviz_view: "false"
     urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle.urdf"
     sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf"
+  - name: tb3
+    x_pose: -6.5
+    y_pose: -2.0
+    z_pose: 0.01
+    yaw: 1.5708
+    rviz_view: "false"
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle_pi.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle_pi/model.sdf"
