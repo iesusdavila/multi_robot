@@ -41,30 +41,21 @@ async def navigate_robot(nav_client, goal_poses_robot, nav_start):
 async def main(args=None):
     # REALIZAR PARA PASAR LA RUTA COMO ARGUMENTO!!! PILOSKIIIIIIII!!!!
 
-    # TAL VEZ EL SEGUNDO FOR NO SEA LO CORRECTO PORQUE VUELVE A REPETIR CODIGO
     rclpy.init(args=args)
 
     pose_utils = PoseUtils()
     data_nav_robots = DataRobots('/home/rov-robot/project_ws/src/multi_robot/multi_robot_move/configs/nav_robots_world.yaml')
 
-    list_robots = []
+    list_funciones = []
     for robot in data_nav_robots.generate_robots():
-        dict_robots = {}
 
-        dict_robots['name_robot'] = robot['name']
+        name_robot = robot['name']
+        navigation_client = BasicNavigator(namespace=name_robot)
 
         list_poses_wo_process = data_nav_robots.get_list_poses(robot) # obtener lista de poses sin convertir en PoseStamped
         list_poses_w_process = pose_utils.create_poses(list_poses_wo_process) # convertir a PoseStamped
+        goal_poses_robot = list_poses_w_process
 
-        dict_robots['poses_goals'] = list_poses_w_process
-
-        list_robots.append(dict_robots)
-
-    list_funciones = [] 
-    for robot in list_robots:
-
-        navigation_client = BasicNavigator(namespace=robot['name_robot'])
-        goal_poses_robot = robot['poses_goals']
         nav_start = navigation_client.get_clock().now()
 
         list_funciones.append(navigate_robot(navigation_client, goal_poses_robot, nav_start))
