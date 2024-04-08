@@ -1,5 +1,9 @@
 robots:
+  - name: tb1
+    is_master: true
   - name: tb2
+    is_master: false
+    name_master: tb1
     pose_goal_1:
       x: 1.5
       y: -0.5
@@ -11,6 +15,8 @@ robots:
       z: 0.01
       yaw: 0.0
   - name: tb3
+    is_master: false
+    name_master: tb1
     pose_goal_1:
       x: 0.0
       y: 1.5
