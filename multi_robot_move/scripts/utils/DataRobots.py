@@ -18,7 +18,7 @@ class DataRobots:
         return robot['name']
 
     def get_number_poses(self, robot):
-        return len(robot) - 1
+        return len(robot) - 3
 
     def get_pose(self, robot, index):
         param_goal_pose = "pose_goal_" + str(index+1)
