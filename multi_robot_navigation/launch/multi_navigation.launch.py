@@ -32,6 +32,21 @@ def generate_launch_description():
         'y_pose', default_value='0.0', description='Initial y position of robot'
     )
 
+    z_pose = LaunchConfiguration('z_pose', default='0.0')
+    declare_z_pose = DeclareLaunchArgument(
+        'z_pose', default_value='0.0', description='Initial z position of robot'
+    )
+
+    qz = LaunchConfiguration('qz', default='0.0')
+    declare_qz = DeclareLaunchArgument(
+        'qz', default_value='0.0', description='Initial qz orientation of robot'
+    )
+
+    qw = LaunchConfiguration('qw', default='1.0')
+    declare_qw = DeclareLaunchArgument(
+        'qw', default_value='1.0', description='Initial qw orientation of robot'
+    )
+
     map_yaml_file = LaunchConfiguration('map_yaml_file', default=os.path.join(get_package_share_directory('turtlebot3_navigation2'), 'map', 'map.yaml'))
     declare_map_yaml_cmd = DeclareLaunchArgument(
         'map_yaml_file', default_value=os.path.join(get_package_share_directory('turtlebot3_navigation2'), 'map', 'map.yaml'),
@@ -96,10 +111,10 @@ def generate_launch_description():
         }.items()
     )
 
-    message = ['{header: {frame_id: map}, pose: {pose: {position: {x: ', x_pose, ', y: ', y_pose, ', z: 0.1}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0000000}}, }}']
+    message = ['{header: {frame_id: map}, pose: {pose: {position: {x: ', x_pose, ', y: ', y_pose, ', z: ', z_pose, '}, orientation: {x: 0.0, y: 0.0, z: ', qz, ', w: ', qw, '}}, }}']
 
     initial_pose_cmd = ExecuteProcess(
-        cmd=['ros2', 'topic', 'pub', '-t', '3', '--qos-reliability', 'reliable', [robot_namespace, '/initialpose'],
+        cmd=['ros2', 'topic', 'pub', '-t', '2', '--qos-reliability', 'reliable', [robot_namespace, '/initialpose'],
             'geometry_msgs/PoseWithCovarianceStamped', message],
         output='screen'
     )
@@ -134,6 +149,9 @@ def generate_launch_description():
     ld.add_action(declare_robot_namespace)
     ld.add_action(declare_x_pose)
     ld.add_action(declare_y_pose)
+    ld.add_action(declare_z_pose)
+    ld.add_action(declare_qz)
+    ld.add_action(declare_qw)
     ld.add_action(declare_map_yaml_cmd)
 
     ld.add_action(map_server)
