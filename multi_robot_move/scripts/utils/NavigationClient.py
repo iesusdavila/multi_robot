@@ -92,6 +92,15 @@ class BasicNavigator(Node):
     def getNameRobot(self):
         return self.name_robot
 
+    def getTimeNav(self, time_nanosec):
+        time_mea = time.localtime(time_nanosec / 1e9)
+
+        hour = time_mea.tm_hour
+        minute = time_mea.tm_min
+        second = time_mea.tm_sec
+
+        return hour, minute, second
+
     def destroyNode(self):
         self.destroy_node()
 
