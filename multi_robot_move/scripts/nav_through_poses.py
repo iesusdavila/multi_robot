@@ -32,10 +32,6 @@ async def navigate_robot_master(nav_client, goal_poses_robot, nav_start):
             if now - nav_start > Duration(seconds=600.0):
                 nav_client.cancelTask()
 
-            # Some follow waypoints request change to demo preemption
-            if now - nav_start > Duration(seconds=30.0):
-                print("Tiempo de navegación excedido")
-
 async def navigate_robot(nav_client, goal_poses_robot, nav_start, name_master_robot):
     pose_utils = PoseUtils()
 
@@ -44,6 +40,11 @@ async def navigate_robot(nav_client, goal_poses_robot, nav_start, name_master_ro
         await asyncio.sleep(1)  # Espera corta para permitir que otras tareas se ejecuten
         feedback = nav_client.getFeedback()
         if feedback:
+            now = nav_client.get_clock().now()
+
+            hour_nav, min_nav, sec_nav = nav_client.getTimeNav(now.nanoseconds - nav_start.nanoseconds)
+            hour_max, min_max, sec_max = nav_client.getTimeNav(Duration(seconds=10.0).nanoseconds)
+
             print(
                 'Executing current waypoint '
                 + str(nav_client.getNameRobot())
@@ -51,25 +52,40 @@ async def navigate_robot(nav_client, goal_poses_robot, nav_start, name_master_ro
                 + str(feedback.current_waypoint + 1)
                 + '/'
                 + str(len(goal_poses_robot))
+                + ' - '
+                + str(hour_nav-9)
+                + ':'
+                + str(min_nav)
+                + ':'
+                + str(sec_nav)
+                + ' / '
+                + str(hour_max-9)
+                + ':'
+                + str(min_max)
+                + ':'
+                + str(sec_max)
             )
-            now = nav_client.get_clock().now()
 
             # Some navigation timeout to demo cancellation
             if now - nav_start > Duration(seconds=600.0):
                 nav_client.cancelTask()
 
             # Some follow waypoints request change to demo preemption
-            if now - nav_start > Duration(seconds=50.0):
+            if now - nav_start > Duration(seconds=10.0):
                 print("Tiempo de navegación excedido")
+
+                routes_remaining = len(goal_poses_robot) - (feedback.current_waypoint + 1)
                 nav_client.cancelTask()
+                
+                print("Rutas restantes: " + str(routes_remaining))
+                if routes_remaining > 0:
+                    print("Master robot: " + name_master_robot)
+                    nav_master = BasicNavigator(namespace=name_master_robot)
 
-                nav_master = BasicNavigator(namespace=name_master_robot)
-                pose_goal = pose_utils.create_pose(1.5, -0.5, 0.0, 0.0)
+                    nav_start = nav_master.get_clock().now()
 
-                nav_start = nav_master.get_clock().now()
-
-                await asyncio.gather(navigate_robot_master(nav_master, [pose_goal], nav_start)) 
-
+                    await asyncio.gather(navigate_robot_master(nav_master, goal_poses_robot[feedback.current_waypoint + 1:], nav_start))
+                
 async def main(args=None):
     if args is None:
         args = sys.argv
