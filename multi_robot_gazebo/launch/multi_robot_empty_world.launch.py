@@ -7,6 +7,14 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration, TextSubstitution
 from launch.conditions import IfCondition
 import yaml
+import math
+
+def quaternion_from_euler(yaw):
+
+    qz = math.sin(yaw * 0.5)
+    qw = math.cos(yaw * 0.5)  
+
+    return qz, qw
 
 def generate_robots():
     robots_file = os.path.join(get_package_share_directory('multi_robot_gazebo'), 'config', 'robots_empty_world.yaml')
@@ -87,6 +95,9 @@ def generate_launch_description():
                 'robot_namespace': ['/' + robot['name']],
                 'x_pose': TextSubstitution(text=str(robot['x_pose'])),
                 'y_pose': TextSubstitution(text=str(robot['y_pose'])),
+                'z_pose': TextSubstitution(text=str(robot['z_pose'])),
+                'qz': TextSubstitution(text=str(quaternion_from_euler(robot['yaw'])[0])),
+                'qw': TextSubstitution(text=str(quaternion_from_euler(robot['yaw'])[1])),
                 'rviz_view': robot['rviz_view'],
                 'rviz_config_file': os.path.join(pkg_multi_robot_navigation, 'rviz', 'multi_nav2_default_view.rviz'),
                 'nav_params_file': os.path.join(pkg_multi_robot_navigation, 'params', 'nav2_params.yaml'),
