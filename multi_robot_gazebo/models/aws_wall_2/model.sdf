@@ -1,0 +1,45 @@
+<?xml version="1.0" ?>
+<sdf version="1.6">
+  <model name="aws_wall_2">
+    <link name="link">
+      <inertial>
+        <mass>1000</mass>
+        <inertia>
+          <ixx>840083.33</ixx>
+          <ixy>0</ixy>
+          <ixz>0</ixz>
+          <iyy>475500.0</iyy>
+          <iyz>0</iyz>
+          <izz>1302083.33</izz>
+        </inertia>
+      </inertial>
+      <collision name="collision">
+        <geometry>
+          <rectangle>
+            <size>0.1 1 1</size>
+          </rectangle>
+        </geometry>
+		<surface>
+          <friction>
+            <ode>
+              <mu>0.5</mu>
+              <mu2>0.5</mu2>
+              <fdir1>0 0 0</fdir1>
+              <slip1>0</slip1>
+              <slip2>0</slip2>
+            </ode>
+        </friction>
+          </surface>
+      </collision>
+      <visual name="visual">
+	    <geometry>
+          <rectangle>
+            <size>0.1 1 1</size>
+          </rectangle>
+        </geometry>
+      <meta> <layer> 2 </layer></meta>
+</visual>
+    </link>
+<static>1</static>
+  </model>
+</sdf>
