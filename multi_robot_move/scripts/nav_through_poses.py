@@ -104,13 +104,8 @@ async def main(args=None):
         else:
             navigation_client_master = BasicNavigator(namespace=name_robot)
 
-            # estado inicial del master robot
-            print(navigation_client_master.getFeedback())
-            print(navigation_client_master.getResult())
-
             master_robots[name_robot] = robot
             master_robots[name_robot]['nav_client'] = navigation_client_master
-            print("Master robot: " + name_robot)
 
     await asyncio.gather(*list_funciones)
 
