@@ -36,7 +36,7 @@ async def navigate_robot(nav_client, goal_poses_robot, nav_start, name_master_ro
             now = nav_client.get_clock().now()
 
             hour_nav, min_nav, sec_nav = nav_client.getTimeNav(now.nanoseconds - nav_start.nanoseconds)
-            hour_max, min_max, sec_max = nav_client.getTimeNav(Duration(seconds=10.0).nanoseconds)
+            hour_max, min_max, sec_max = nav_client.getTimeNav(Duration(seconds=75.0).nanoseconds)
 
             print('Executing current waypoint ' + str(nav_client.getNameRobot()) + ': ' + str(feedback.current_waypoint + 1) + '/' + str(len(goal_poses_robot))
                 + ' - ' + str(hour_nav-9) + ':' + str(min_nav) + ':' + str(sec_nav) + ' / ' + str(hour_max-9) + ':' + str(min_max) + ':' + str(sec_max))
@@ -46,21 +46,27 @@ async def navigate_robot(nav_client, goal_poses_robot, nav_start, name_master_ro
                 nav_client.cancelTask()
 
             # Some follow waypoints request change to demo preemption
-            if now - nav_start > Duration(seconds=10.0):
+            if now - nav_start > Duration(seconds=75.0):
                 print("Tiempo de navegación excedido")
 
-                routes_remaining = len(goal_poses_robot) - (feedback.current_waypoint + 1)
+                routes_remaining = len(goal_poses_robot) - (feedback.current_waypoint)
                 nav_client.cancelTask()
                 
-                print("Rutas restantes: " + str(routes_remaining))
+                print("Rutas restantes por completar: " + str(routes_remaining))
                 if routes_remaining > 0:
                     print("Master robot: " + name_master_robot)
                     master_robot = master_robots[name_master_robot]
 
                     nav_master = master_robot['nav_client']
+                    
+                    if nav_master.getFeedback() is not None:
+                        print("Master ocupado, no se puede efectuar la tarea.")
+                        return
+
+                    print("Master disponible, se efectuará la tarea.")
                     nav_start_master = nav_master.get_clock().now()
 
-                    await asyncio.gather(navigate_robot_master(nav_master, goal_poses_robot[feedback.current_waypoint + 1:], nav_start_master))
+                    await asyncio.gather(navigate_robot_master(nav_master, goal_poses_robot[feedback.current_waypoint:], nav_start_master))
                 
 master_robots = {}
 
@@ -97,6 +103,10 @@ async def main(args=None):
             list_funciones.append(navigate_robot(navigation_client, goal_poses_robot, nav_start, name_master_robot))
         else:
             navigation_client_master = BasicNavigator(namespace=name_robot)
+
+            # estado inicial del master robot
+            print(navigation_client_master.getFeedback())
+            print(navigation_client_master.getResult())
 
             master_robots[name_robot] = robot
             master_robots[name_robot]['nav_client'] = navigation_client_master
