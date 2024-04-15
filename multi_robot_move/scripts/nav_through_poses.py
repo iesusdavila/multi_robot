@@ -16,9 +16,6 @@ tasks_master_robots = {}
 async def navigate_robot_master(nav_master, nav_slave, nav_start):
     pose_utils = PoseUtils()
 
-    print("Nombre del robot maestro: " + nav_master.getNameRobot())
-    print("Nombre del robot esclavo: " + nav_slave)
-
     while tasks_master_robots[nav_master.getNameRobot()]:
         # obtener la primera tarea pendiente
         name_first_slave = list(tasks_master_robots[nav_master.getNameRobot()])[0]
