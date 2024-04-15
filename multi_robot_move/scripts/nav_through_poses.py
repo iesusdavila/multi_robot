@@ -13,13 +13,13 @@ import sys
 master_robots = {}
 tasks_master_robots = {}
 
-async def navigate_robot_master(nav_master, nav_slave, nav_start):
-    pose_utils = PoseUtils()
+async def navigate_robot_master(nav_master, name_slave, nav_start):
 
     while tasks_master_robots[nav_master.getNameRobot()]:
-        # obtener la primera tarea pendiente
+
         name_first_slave = list(tasks_master_robots[nav_master.getNameRobot()])[0]
-        if name_first_slave == nav_slave:
+
+        if name_first_slave == name_slave:
             print("Completando tarea pendiente del robot esclavo: " + name_first_slave)
 
             goal_poses_robot = tasks_master_robots[nav_master.getNameRobot()][name_first_slave]
@@ -29,7 +29,7 @@ async def navigate_robot_master(nav_master, nav_slave, nav_start):
                 await asyncio.sleep(1)
                 feedback = nav_master.getFeedback()
                 if feedback:
-                    print( 'Executing current waypoint ' + str(nav_master.getNameRobot()) + ': '+ str(feedback.current_waypoint + 1) + '/' + str(len(goal_poses_robot)) + " del esclavo: " + nav_slave)
+                    print( 'Executing current waypoint ' + str(nav_master.getNameRobot()) + ': '+ str(feedback.current_waypoint + 1) + '/' + str(len(goal_poses_robot)) + " del esclavo: " + name_slave)
 
                     now = nav_master.get_clock().now()
 
@@ -43,60 +43,60 @@ async def navigate_robot_master(nav_master, nav_slave, nav_start):
 
             break
         else:
-            print("El esclavo " + nav_slave + " esta esperando a que el esclavo " + name_first_slave + " complete su tarea")
+            print("El esclavo " + name_slave + " esta esperando a que el esclavo " + name_first_slave + " complete su tarea")
             await asyncio.sleep(1)
 
-async def navigate_robot(nav_client, goal_poses_robot, nav_start, name_master_robot):
-    pose_utils = PoseUtils()
+async def navigate_robot_slave(nav_slave, goal_poses_robot, nav_start, name_master):
 
-    nav_client.followWaypoints(goal_poses_robot)
-    while not nav_client.isTaskComplete():
+    nav_slave.followWaypoints(goal_poses_robot)
+
+    while not nav_slave.isTaskComplete():
         await asyncio.sleep(1)  # Espera corta para permitir que otras tareas se ejecuten
-        feedback = nav_client.getFeedback()
+        feedback = nav_slave.getFeedback()
         if feedback:
-            now = nav_client.get_clock().now()
+            now = nav_slave.get_clock().now()
 
-            hour_nav, min_nav, sec_nav = nav_client.getTimeNav(now.nanoseconds - nav_start.nanoseconds)
-            hour_max, min_max, sec_max = nav_client.getTimeNav(Duration(seconds=10.0).nanoseconds)
+            hour_nav, min_nav, sec_nav = nav_slave.getTimeNav(now.nanoseconds - nav_start.nanoseconds)
+            hour_max, min_max, sec_max = nav_slave.getTimeNav(Duration(seconds=10.0).nanoseconds)
 
-            print('Executing current waypoint ' + str(nav_client.getNameRobot()) + ': ' + str(feedback.current_waypoint + 1) + '/' + str(len(goal_poses_robot))
+            print('Executing current waypoint ' + str(nav_slave.getNameRobot()) + ': ' + str(feedback.current_waypoint + 1) + '/' + str(len(goal_poses_robot))
                 + ' - ' + str(hour_nav-9) + ':' + str(min_nav) + ':' + str(sec_nav) + ' / ' + str(hour_max-9) + ':' + str(min_max) + ':' + str(sec_max))
 
             # Some navigation timeout to demo cancellation
             if now - nav_start > Duration(seconds=600.0):
-                nav_client.cancelTask()
+                nav_slave.cancelTask()
 
             # Some follow waypoints request change to demo preemption
             if now - nav_start > Duration(seconds=10.0):
                 print("Tiempo de navegación excedido")
 
                 routes_remaining = len(goal_poses_robot) - (feedback.current_waypoint)
-                nav_client.cancelTask()
+                nav_slave.cancelTask()
                 
                 print("Rutas restantes por completar: " + str(routes_remaining))
                 if routes_remaining > 0:
-                    print("Master robot: " + name_master_robot)
-                    master_robot = master_robots[name_master_robot]
+                    print("Master robot: " + name_master)
+                    master_robot = master_robots[name_master]
 
                     nav_master = master_robot['nav_client']
                     
                     if nav_master.getFeedback() is None:
                         print("Master disponible, se efectuará la tarea.")
                         
-                        tasks_master_robots[nav_master.getNameRobot()][nav_client.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
+                        tasks_master_robots[nav_master.getNameRobot()][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
 
                         nav_start_master = nav_master.get_clock().now()
 
-                        await asyncio.gather(navigate_robot_master(nav_master, nav_client.getNameRobot(), nav_start_master))
+                        await asyncio.gather(navigate_robot_master(nav_master, nav_slave.getNameRobot(), nav_start_master))
                     else:                
                         print("Master ocupado, no se puede efectuar la tarea.")
                         print("Colocando la respuesta de la meta a la lista de tareas pendientes del maestro")
             
-                        tasks_master_robots[nav_master.getNameRobot()][nav_client.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
+                        tasks_master_robots[nav_master.getNameRobot()][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
 
                         nav_start_master = nav_master.get_clock().now()
 
-                        await asyncio.gather(navigate_robot_master(nav_master, nav_client.getNameRobot(), nav_start_master))
+                        await asyncio.gather(navigate_robot_master(nav_master, nav_slave.getNameRobot(), nav_start_master))
 
 async def main(args=None):
     if args is None:
@@ -113,32 +113,32 @@ async def main(args=None):
     pose_utils = PoseUtils()
     data_nav_robots = DataRobots(yaml_file_path)
 
-    list_funciones = []
+    list_nav_func = []
     for robot in data_nav_robots.generate_robots():
 
         name_robot = robot['name']
 
         if not robot['is_master']:
-            navigation_client = BasicNavigator(namespace=name_robot)
+            nav_slave = BasicNavigator(namespace=name_robot)
 
             list_poses_wo_process = data_nav_robots.get_list_poses(robot)  # obtener lista de poses sin convertir en PoseStamped
             list_poses_w_process = pose_utils.create_poses(list_poses_wo_process)  # convertir a PoseStamped
             goal_poses_robot = list_poses_w_process
             name_master_robot = robot['name_master']
 
-            nav_start = navigation_client.get_clock().now()
+            nav_start = nav_slave.get_clock().now()
 
-            list_funciones.append(navigate_robot(navigation_client, goal_poses_robot, nav_start, name_master_robot))
+            list_nav_func.append(navigate_robot_slave(nav_slave, goal_poses_robot, nav_start, name_master_robot))
         else:
-            navigation_client_master = BasicNavigator(namespace=name_robot)
+            nav_master = BasicNavigator(namespace=name_robot)
 
             master_robots[name_robot] = robot
-            master_robots[name_robot]['nav_client'] = navigation_client_master
+            master_robots[name_robot]['nav_client'] = nav_master
 
             tasks_master_robots[name_robot] = {} 
 
 
-    await asyncio.gather(*list_funciones)
+    await asyncio.gather(*list_nav_func)
 
     rclpy.shutdown()
 
