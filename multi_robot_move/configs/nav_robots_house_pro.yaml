@@ -33,6 +33,17 @@ robots:
       z: 0.01
       yaw: 1.5708
   - name: tb4
-    is_master: true
+    is_master: false
+    name_master: tb5
+    pose_goal_1:
+      x: 4.0
+      y: 1.0
+      z: 0.01
+      yaw: 0.0
+    pose_goal_2:
+      x: -2.0
+      y: 4.5
+      z: 0.01
+      yaw: 1.5708
   - name: tb5
     is_master: true
