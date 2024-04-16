@@ -30,7 +30,7 @@ install(PROGRAMS
   scripts/utils/PoseUtils.py
   scripts/nav_pose.py
   scripts/nav_pose_v2.py
-  scripts/nav_through_poses.py
+  scripts/nav_follow_waypoints.py
   scripts/nav_through_poses_v2.py
   DESTINATION lib/${PROJECT_NAME}
 )
