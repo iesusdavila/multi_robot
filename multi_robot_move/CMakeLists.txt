@@ -28,10 +28,8 @@ install(PROGRAMS
   scripts/utils/NavigationClient.py
   scripts/utils/DataRobots.py
   scripts/utils/PoseUtils.py
-  scripts/nav_pose.py
-  scripts/nav_pose_v2.py
   scripts/nav_follow_waypoints.py
-  scripts/nav_through_poses_v2.py
+  scripts/nav_through_poses.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
