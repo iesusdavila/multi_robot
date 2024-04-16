@@ -1,133 +1,162 @@
-#! /usr/bin/env python3
+#!/usr/bin/env python3
 
-from geometry_msgs.msg import PoseStamped
-from nav2_simple_commander.robot_navigator import BasicNavigator, TaskResult
 import rclpy
+from rclpy.node import Node
+from NavigationClient import BasicNavigator, TaskResult
+from PoseUtils import PoseUtils
+from DataRobots import DataRobots
+import time
 from rclpy.duration import Duration
+import asyncio
+import sys
 
-"""
-Basic navigation demo to go to poses.
-"""
+master_robots = {}
+tasks_master_robots = {}
 
+def generate_message(name_robot, current_waypoint, number_poses, nav_time=(0,0,0), max_time=(0,0,0), name_slave=None):
+    hour_nav, min_nav, sec_nav = nav_time
+    hour_max, min_max, sec_max = max_time
+    
+    msg = 'Executing current waypoint ' + str(name_robot) + ': '+ str(number_poses - current_waypoint + 1) + '/' + str(number_poses) 
+    msg += ' - ' + str(hour_nav-9) + ':' + str(min_nav) + ':' + str(sec_nav) + ' / ' + str(hour_max-9) + ':' + str(min_max) + ':' + str(sec_max)
 
-def main():
-    rclpy.init()
+    if name_slave is not None: 
+        msg += " del esclavo: " + name_slave
 
-    navigator = BasicNavigator(node_name='basic_navigator', namespace='tb2')
+    print(msg)
 
-    # Set our demo's initial pose
-    # initial_pose = PoseStamped()
-    # initial_pose.header.frame_id = 'map'
-    # initial_pose.header.stamp = navigator.get_clock().now().to_msg()
-    # initial_pose.pose.position.x = 3.45
-    # initial_pose.pose.position.y = 2.15
-    # initial_pose.pose.orientation.z = 1.0
-    # initial_pose.pose.orientation.w = 0.0
-    # navigator.setInitialPose(initial_pose)
+async def navigate_robot_master(nav_master, name_slave):
 
-    # Activate navigation, if not autostarted. This should be called after setInitialPose()
-    # or this will initialize at the origin of the map and update the costmap with bogus readings.
-    # If autostart, you should `waitUntilNav2Active()` instead.
-    # navigator.lifecycleStartup()
+    while tasks_master_robots[nav_master.getNameRobot()]:
 
-    # Wait for navigation to fully activate, since autostarting nav2
-    navigator.waitUntilNav2Active()
+        name_first_slave = list(tasks_master_robots[nav_master.getNameRobot()])[0]
 
-    # If desired, you can change or load the map as well
-    # navigator.changeMap('/path/to/map.yaml')
+        if name_first_slave == name_slave:
+            print("Completando tarea pendiente del robot esclavo: " + name_first_slave)
 
-    # You may use the navigator to clear or obtain costmaps
-    # navigator.clearAllCostmaps()  # also have clearLocalCostmap() and clearGlobalCostmap()
-    # global_costmap = navigator.getGlobalCostmap()
-    # local_costmap = navigator.getLocalCostmap()
+            goal_poses_robot = tasks_master_robots[nav_master.getNameRobot()][name_first_slave]
+            nav_master.goThroughPoses(goal_poses_robot)
 
-    # set our demo's goal poses to follow
-    goal_poses = []
-    goal_pose1 = PoseStamped()
-    goal_pose1.header.frame_id = 'map'
-    goal_pose1.header.stamp = navigator.get_clock().now().to_msg()
-    goal_pose1.pose.position.x = 1.5
-    goal_pose1.pose.position.y = -0.5
-    goal_pose1.pose.orientation.w = 0.707
-    goal_pose1.pose.orientation.z = 0.707
-    goal_poses.append(goal_pose1)
+            nav_start = nav_master.get_clock().now()
 
-    # additional goals can be appended
-    goal_pose2 = PoseStamped()
-    goal_pose2.header.frame_id = 'map'
-    goal_pose2.header.stamp = navigator.get_clock().now().to_msg()
-    goal_pose2.pose.position.x = 0.0
-    goal_pose2.pose.position.y = 0.5
-    goal_pose2.pose.orientation.w = 0.707
-    goal_pose2.pose.orientation.z = 0.707
-    goal_poses.append(goal_pose2)
-    goal_pose3 = PoseStamped()
-    goal_pose3.header.frame_id = 'map'
-    goal_pose3.header.stamp = navigator.get_clock().now().to_msg()
-    goal_pose3.pose.position.x = 0.0
-    goal_pose3.pose.position.y = -0.5
-    goal_pose3.pose.orientation.w = 0.707
-    goal_pose3.pose.orientation.z = 0.707
-    goal_poses.append(goal_pose3)
+            while not nav_master.isTaskComplete():
+                await asyncio.sleep(1)
+                feedback = nav_master.getFeedback()
+                if feedback:
+                    now = nav_master.get_clock().now()
 
-    # sanity check a valid path exists
-    # path = navigator.getPath(initial_pose, goal_pose1)
+                    nav_time = nav_master.getTimeNav(now.nanoseconds - nav_start.nanoseconds)
+                    max_time = nav_master.getTimeNav(Duration(seconds=600.0).nanoseconds)
+                    
+                    generate_message(nav_master.getNameRobot(), feedback.number_of_poses_remaining, len(goal_poses_robot), nav_time, max_time, name_slave)
 
-    nav_start = navigator.get_clock().now()
-    navigator.followWaypoints(goal_poses)
+                    # Some navigation timeout to demo cancellation
+                    if now - nav_start > Duration(seconds=600.0):
+                        nav_master.cancelTask()
 
-    i = 0
-    while not navigator.isTaskComplete():
-        ################################################
-        #
-        # Implement some code here for your application!
-        #
-        ################################################
+            print("Tarea completada")
+            tasks_master_robots[nav_master.getNameRobot()].pop(name_first_slave)
+            print("Tarea eliminada de la lista de tareas pendientes")
 
-        # Do something with the feedback
-        i = i + 1
-        feedback = navigator.getFeedback()
-        if feedback and i % 5 == 0:
-            print(
-                'Executing current waypoint: '
-                + str(feedback.current_waypoint + 1)
-                + '/'
-                + str(len(goal_poses))
-            )
-            now = navigator.get_clock().now()
+            break
+        else:
+            print("El esclavo " + name_slave + " esta esperando a que el esclavo " + name_first_slave + " complete su tarea")
+            await asyncio.sleep(1)
+
+async def navigate_robot_slave(nav_slave, goal_poses_robot, nav_start, name_master):
+
+    nav_slave.goThroughPoses(goal_poses_robot)
+
+    while not nav_slave.isTaskComplete():
+        await asyncio.sleep(1)  # Espera corta para permitir que otras tareas se ejecuten
+        feedback = nav_slave.getFeedback()
+        if feedback:
+            now = nav_slave.get_clock().now()
+
+            nav_time = nav_slave.getTimeNav(now.nanoseconds - nav_start.nanoseconds)
+            max_time = nav_slave.getTimeNav(Duration(seconds=600.0).nanoseconds)
+
+            generate_message(nav_slave.getNameRobot(), feedback.number_of_poses_remaining, len(goal_poses_robot), nav_time, max_time)
 
             # Some navigation timeout to demo cancellation
             if now - nav_start > Duration(seconds=600.0):
-                navigator.cancelTask()
+                nav_slave.cancelTask()
 
             # Some follow waypoints request change to demo preemption
-            if now - nav_start > Duration(seconds=35.0):
-                goal_pose4 = PoseStamped()
-                goal_pose4.header.frame_id = 'map'
-                goal_pose4.header.stamp = now.to_msg()
-                goal_pose4.pose.position.x = -1.5
-                goal_pose4.pose.position.y = 0.5
-                goal_pose4.pose.orientation.w = 0.707
-                goal_pose4.pose.orientation.z = 0.707
-                goal_poses = [goal_pose4]
-                nav_start = now
-                navigator.followWaypoints(goal_poses)
+            if now - nav_start > Duration(seconds=600.0):
+                print("Tiempo de navegación excedido")
 
-    # Do something depending on the return code
-    result = navigator.getResult()
-    if result == TaskResult.SUCCEEDED:
-        print('Goal succeeded!')
-    elif result == TaskResult.CANCELED:
-        print('Goal was canceled!')
-    elif result == TaskResult.FAILED:
-        print('Goal failed!')
-    else:
-        print('Goal has an invalid return status!')
+                routes_remaining = len(goal_poses_robot) - (feedback.number_of_poses_remaining)
+                nav_slave.cancelTask()
+                
+                print("Rutas restantes por completar: " + str(routes_remaining))
+                if routes_remaining > 0:
+                    print("Master robot: " + name_master)
+                    master_robot = master_robots[name_master]
 
-    navigator.lifecycleShutdown()
+                    nav_master = master_robot['nav_client']
+                    
+                    if nav_master.getFeedback() is None:
+                        print("Master disponible, se efectuará la tarea.")
+                        
+                        tasks_master_robots[nav_master.getNameRobot()][nav_slave.getNameRobot()] = goal_poses_robot[feedback.number_of_poses_remaining:]
 
-    exit(0)
+                        nav_start_master = nav_master.get_clock().now()
 
+                        await asyncio.gather(navigate_robot_master(nav_master, nav_slave.getNameRobot()))
+                    else:                
+                        print("Master ocupado, no se puede efectuar la tarea.")
+                        print("Colocando la respuesta de la meta a la lista de tareas pendientes del maestro")
+            
+                        tasks_master_robots[nav_master.getNameRobot()][nav_slave.getNameRobot()] = goal_poses_robot[feedback.number_of_poses_remaining:]
+
+                        nav_start_master = nav_master.get_clock().now()
+
+                        await asyncio.gather(navigate_robot_master(nav_master, nav_slave.getNameRobot()))
+
+async def main(args=None):
+    if args is None:
+        args = sys.argv
+
+    if len(args) != 2:
+        print("Usage: ros2 run multi_robot_move nav_through_poses.py <path_to_yaml_file>")
+        return
+
+    yaml_file_path = args[1]
+
+    rclpy.init(args=args)
+
+    pose_utils = PoseUtils()
+    data_nav_robots = DataRobots(yaml_file_path)
+
+    list_nav_func = []
+    for robot in data_nav_robots.generate_robots():
+
+        name_robot = robot['name']
+
+        if not robot['is_master']:
+            nav_slave = BasicNavigator(namespace=name_robot)
+
+            list_poses_wo_process = data_nav_robots.get_list_poses(robot)  # obtener lista de poses sin convertir en PoseStamped
+            list_poses_w_process = pose_utils.create_poses(list_poses_wo_process)  # convertir a PoseStamped
+            goal_poses_robot = list_poses_w_process
+            name_master_robot = robot['name_master']
+
+            nav_start = nav_slave.get_clock().now()
+
+            list_nav_func.append(navigate_robot_slave(nav_slave, goal_poses_robot, nav_start, name_master_robot))
+        else:
+            nav_master = BasicNavigator(namespace=name_robot)
+
+            master_robots[name_robot] = robot
+            master_robots[name_robot]['nav_client'] = nav_master
+
+            tasks_master_robots[name_robot] = {} 
+
+
+    await asyncio.gather(*list_nav_func)
+
+    rclpy.shutdown()
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
