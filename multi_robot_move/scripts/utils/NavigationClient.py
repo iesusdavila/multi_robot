@@ -92,8 +92,8 @@ class BasicNavigator(Node):
     def getNameRobot(self):
         return self.name_robot
 
-    def getTimeNav(self, time_nanosec):
-        time_mea = time.localtime(time_nanosec / 1e9)
+    def getTimeNav(self, time_nanosec, is_sec=False):
+        time_mea = time.localtime(time_nanosec) if is_sec else time.localtime(time_nanosec / 1e9)
 
         hour = time_mea.tm_hour
         minute = time_mea.tm_min
