@@ -40,7 +40,8 @@ async def navigate_robot_master(nav_master, name_slave):
             nav_start = nav_master.get_clock().now()
 
             while not nav_master.isTaskComplete():
-
+                
+                await asyncio.sleep(1)
                 feedback = nav_master.getFeedback()
                 
                 if feedback:
@@ -70,6 +71,7 @@ async def navigate_robot_slave(nav_slave, goal_poses_robot, nav_start, name_mast
 
     while not nav_slave.isTaskComplete():
 
+        await asyncio.sleep(1)
         feedback = nav_slave.getFeedback()
 
         if feedback:
