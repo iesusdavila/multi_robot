@@ -3,11 +3,10 @@
 from geometry_msgs.msg import PoseStamped, Quaternion
 import math
 
-class PoseUtils:
-    def __init__(self):
-        pass
+class PoseUtils:  
 
-    def quaternion_from_euler(self, roll, pitch, yaw):
+    @staticmethod
+    def quaternion_from_euler(roll, pitch, yaw):
         cuaternion = Quaternion()
 
         cy = math.cos(yaw * 0.5)
@@ -30,19 +29,21 @@ class PoseUtils:
 
         return cuaternion
 
-    def create_pose(self, x, y, z, yaw=0):
+    @staticmethod
+    def create_pose(x, y, z, yaw=0):
         pose = PoseStamped()
         pose.header.frame_id = 'map'
         pose.pose.position.x = x
         pose.pose.position.y = y
         pose.pose.position.z = z
-        pose.pose.orientation = self.quaternion_from_euler(0, 0, yaw)
+        pose.pose.orientation = PoseUtils.quaternion_from_euler(0, 0, yaw)
 
         return pose
     
-    def create_poses(self, list_poses):
+    @staticmethod
+    def create_poses(list_poses):
         list_poses_w_process = []
         for pose in list_poses:
             x, y, z, yaw = pose.values()
-            list_poses_w_process.append(self.create_pose(x, y, z, yaw))
+            list_poses_w_process.append(PoseUtils.create_pose(x, y, z, yaw))
         return list_poses_w_process
