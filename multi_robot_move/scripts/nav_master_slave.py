@@ -55,6 +55,7 @@ async def navigate_robot_master(nav_master, name_slave):
                     # Some navigation timeout to demo cancellation
                     if now - nav_start > Duration(seconds=600.0):
                         nav_master.cancelTask()
+                        system_master_slave[name_master]["status"] = False
 
             print("Tarea completada")
             system_master_slave[nav_master.getNameRobot()]["slave_tasks"].pop(name_first_slave)
@@ -92,6 +93,7 @@ async def navigate_robot_slave(nav_slave, goal_poses_robot, name_master):
             if now - nav_start > Duration(seconds=10.0):
                 routes_remaining = len(goal_poses_robot) - (feedback.current_waypoint)
                 nav_slave.cancelTask()
+                system_master_slave[name_master][nav_slave.getNameRobot()]["status"] = False
                 
                 if routes_remaining > 0:
                     print("Master robot: " + name_master)
