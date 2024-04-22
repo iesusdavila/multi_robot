@@ -81,35 +81,66 @@ async def navigate_robot_slave(nav_slave, goal_poses_robot, name_master):
             now = nav_slave.get_clock().now()
 
             nav_time = nav_slave.getTimeNav(now.nanoseconds - nav_start.nanoseconds)
-            max_time = nav_slave.getTimeNav(Duration(seconds=10.0).nanoseconds)
+            max_time = nav_slave.getTimeNav(Duration(seconds=25.0).nanoseconds)
 
             generate_message(nav_slave.getNameRobot(), feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time)
 
             # Some navigation timeout to demo cancellation
             if now - nav_start > Duration(seconds=600.0):
                 nav_slave.cancelTask()
+                system_master_slave[name_master]["slaves"][nav_slave.getNameRobot()]["status"] = False
 
             # Some follow waypoints request change to demo preemption
-            if now - nav_start > Duration(seconds=10.0):
+            if now - nav_start > Duration(seconds=25.0):
                 routes_remaining = len(goal_poses_robot) - (feedback.current_waypoint)
                 nav_slave.cancelTask()
-                system_master_slave[name_master][nav_slave.getNameRobot()]["status"] = False
+                system_master_slave[name_master]["slaves"][nav_slave.getNameRobot()]["status"] = False
                 
                 if routes_remaining > 0:
-                    print("Master robot: " + name_master)
+                    find_slave, free_slave = find_free_slave(name_master)
+                    if find_slave:
+                        nav_slave = system_master_slave[name_master]["slaves"][free_slave]["nav_class"]
 
-                    nav_master = system_master_slave[name_master]["nav_class"]
+                        print("Colocando la respuesta de la meta a la lista de tareas pendientes del esclavo " + free_slave)
 
-                    print("Colocando la respuesta de la meta a la lista de tareas pendientes del maestro")
+                        goal_poses_robot = goal_poses_robot[feedback.current_waypoint:]
+                        await asyncio.gather(navigate_robot_slave(nav_slave, goal_poses_robot, name_master))
+                    else:
+                        print("Master robot: " + name_master)
 
-                    if nav_master.getFeedback() is None:
-                        print("Master disponible, se efectuará la tarea de manera inmediata.")
-                    else:                
-                        print("Master ocupado, esta en línea de espera.")
+                        nav_master = system_master_slave[name_master]["nav_class"]
 
-                    system_master_slave[name_master]["slave_tasks"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
+                        print("Colocando la respuesta de la meta a la lista de tareas pendientes del maestro")
 
-                    await asyncio.gather(navigate_robot_master(nav_master, nav_slave.getNameRobot()))
+                        if nav_master.getFeedback() is None:
+                            print("Master disponible, se efectuará la tarea de manera inmediata.")
+                        else:                
+                            print("Master ocupado, esta en línea de espera.")
+
+                        system_master_slave[name_master]["slave_tasks"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
+
+                        await asyncio.gather(navigate_robot_master(nav_master, nav_slave.getNameRobot()))
+
+    print("Tarea completada por el esclavo: " + nav_slave.getNameRobot())
+
+def find_free_slave(name_master):
+    print("Buscando esclavo disponible para realizar la tarea...")
+    find_free_slave = False
+    for slave in system_master_slave[name_master]["slaves"]:
+        status_slave = system_master_slave[name_master]["slaves"][slave]["status"]
+
+        if system_master_slave[name_master]["slaves"][slave]["status"]:
+            print("El esclavo " + slave + " esta disponible para realizar la tarea")
+            nav_slave = system_master_slave[name_master]["slaves"][slave]["nav_class"]
+
+            if nav_slave.isTaskComplete():
+                find_free_slave = True
+                return find_free_slave, slave
+            else:
+                print("Hay un esclavo disponible pero esta ocupado en otra tarea")
+
+    print("No hay esclavos disponibles para realizar la tarea")
+    return find_free_slave, None
 
 async def main(args=None):
     if args is None:
