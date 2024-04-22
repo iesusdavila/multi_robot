@@ -24,6 +24,47 @@ def generate_message(name_robot, current_waypoint, number_poses, nav_time=(0,0,0
     
     print(msg)
 
+async def navigate_robot_master(nav_master, name_slave):
+
+    while system_master_slave[nav_master.getNameRobot()]["slave_tasks"]:
+
+        name_first_slave = list(system_master_slave[nav_master.getNameRobot()]["slave_tasks"])[0]
+
+        if name_first_slave == name_slave:
+            print("Completando tarea pendiente del robot esclavo: " + name_first_slave)
+
+            goal_poses_robot = system_master_slave[nav_master.getNameRobot()]["slave_tasks"][name_first_slave]
+
+            nav_master.followWaypoints(goal_poses_robot)
+
+            nav_start = nav_master.get_clock().now()
+
+            while not nav_master.isTaskComplete():
+                
+                await asyncio.sleep(1)
+                feedback = nav_master.getFeedback()
+                
+                if feedback:
+                    now = nav_master.get_clock().now()
+
+                    nav_time = nav_master.getTimeNav(now.nanoseconds - nav_start.nanoseconds)
+                    max_time = nav_master.getTimeNav(Duration(seconds=600.0).nanoseconds)
+                    
+                    generate_message(nav_master.getNameRobot(), feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time, name_slave)
+
+                    # Some navigation timeout to demo cancellation
+                    if now - nav_start > Duration(seconds=600.0):
+                        nav_master.cancelTask()
+
+            print("Tarea completada")
+            system_master_slave[nav_master.getNameRobot()]["slave_tasks"].pop(name_first_slave)
+            print("Tarea eliminada de la lista de tareas pendientes")
+
+            break
+        else:
+            print("El esclavo " + name_slave + " esta esperando a que el esclavo " + name_first_slave + " complete su tarea")
+            await asyncio.sleep(1)
+
 async def navigate_robot_slave(nav_slave, goal_poses_robot, name_master):
 
     nav_start = nav_slave.get_clock().now()
@@ -66,7 +107,7 @@ async def navigate_robot_slave(nav_slave, goal_poses_robot, name_master):
 
                     system_master_slave[name_master]["slave_tasks"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
 
-                    # await asyncio.gather(navigate_robot_master(nav_master, nav_slave.getNameRobot()))
+                    await asyncio.gather(navigate_robot_master(nav_master, nav_slave.getNameRobot()))
 
 async def main(args=None):
     if args is None:
