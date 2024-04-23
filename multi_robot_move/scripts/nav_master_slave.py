@@ -12,18 +12,27 @@ import sys
 
 system_master_slave = {}
 
+# ---------------------------------------------
+# --- Imprimir mensaje de navegación actual ---
+# ---------------------------------------------
 def generate_message(name_robot, current_waypoint, number_poses, nav_time=(0,0,0), max_time=(0,0,0), name_slave=None):
+    # tiempo transcurrido de navegación
     hour_nav, min_nav, sec_nav = nav_time
+    # tiempo máximo de navegación
     hour_max, min_max, sec_max = max_time
 
     msg = 'Executing current waypoint ' + str(name_robot) + ': '+ str(current_waypoint + 1) + '/' + str(number_poses) 
     msg += ' - ' + str(hour_nav-9) + ':' + str(min_nav) + ':' + str(sec_nav) + ' / ' + str(hour_max-9) + ':' + str(min_max) + ':' + str(sec_max)
 
+    # validar si la navegación es tarea pendiente de un esclavo
     if name_slave is not None: 
         msg += " del esclavo: " + name_slave
     
     print(msg)
 
+# ---------------------------------------------
+# ----- Navegación de los robots maestros -----
+# ---------------------------------------------
 async def navigate_robot_master(nav_master, name_slave):
 
     while system_master_slave[nav_master.getNameRobot()]["slave_tasks"]:
@@ -34,7 +43,6 @@ async def navigate_robot_master(nav_master, name_slave):
             print("Completando tarea pendiente del robot esclavo: " + name_first_slave)
 
             goal_poses_robot = system_master_slave[nav_master.getNameRobot()]["slave_tasks"][name_first_slave]
-
             nav_master.followWaypoints(goal_poses_robot)
 
             nav_start = nav_master.get_clock().now()
@@ -46,13 +54,12 @@ async def navigate_robot_master(nav_master, name_slave):
                 
                 if feedback:
                     now = nav_master.get_clock().now()
-
                     nav_time = nav_master.getTimeNav(now.nanoseconds - nav_start.nanoseconds)
+
                     max_time = nav_master.getTimeNav(Duration(seconds=600.0).nanoseconds)
                     
                     generate_message(nav_master.getNameRobot(), feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time, name_slave)
 
-                    # Some navigation timeout to demo cancellation
                     if now - nav_start > Duration(seconds=600.0):
                         nav_master.cancelTask()
                         system_master_slave[name_master]["status"] = False
@@ -66,6 +73,9 @@ async def navigate_robot_master(nav_master, name_slave):
             print("El esclavo " + name_slave + " esta esperando a que el esclavo " + name_first_slave + " complete su tarea")
             await asyncio.sleep(1)
 
+# ---------------------------------------------
+# ----- Navegación de los robots esclavos -----
+# ---------------------------------------------
 async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
 
     while system_master_slave[name_master]["slaves"][nav_slave.getNameRobot()]["task_queue"]:
@@ -136,7 +146,10 @@ async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
             if name_slave_pend != nav_slave.getNameRobot():
                 print("El esclavo " + name_slave_pend + " esta esperando que la tarea enviada al esclavo " + name_first_slave_task + " sea completada una vez que dicho esclavo complete su tarea interna.")
             await asyncio.sleep(1)
-                
+
+# ---------------------------------------------
+# -- Encontrar esclavo disponible sin tareas --
+# ---------------------------------------------           
 def find_free_slave(name_master):
     print("Buscando esclavo disponible para realizar la tarea...")
     find_free_slave = False
@@ -156,6 +169,9 @@ def find_free_slave(name_master):
     print("No hay esclavos disponibles para realizar la tarea")
     return find_free_slave, None
 
+# ---------------------------------------------
+# ------------ Función principal --------------
+# ---------------------------------------------
 async def main(args=None):
     if args is None:
         args = sys.argv
