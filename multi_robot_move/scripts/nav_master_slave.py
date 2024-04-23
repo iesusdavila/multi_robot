@@ -99,21 +99,21 @@ async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
                 
                 if feedback:
                     now = nav_slave.get_clock().now()
-
                     nav_time = nav_slave.getTimeNav(now.nanoseconds - nav_start.nanoseconds)
-                    max_time = nav_slave.getTimeNav(Duration(seconds=25.0).nanoseconds)
+                    
+                    duration_max_time = Duration(seconds=25.0)
+                    max_time = nav_slave.getTimeNav(duration_max_time.nanoseconds)
                     
                     if name_slave_pend == nav_slave.getNameRobot():
                         generate_message(nav_slave.getNameRobot(), feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time)
                     else:
                         generate_message(nav_slave.getNameRobot(), feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time, name_slave_pend)
 
-                    # Some navigation timeout to demo cancellation
                     if now - nav_start > Duration(seconds=600.0):
                         nav_master.cancelTask()
                         system_master_slave[name_master]["status"] = False
                     
-                    if now - nav_start > Duration(seconds=25.0):
+                    if now - nav_start > duration_max_time:
                         routes_remaining = len(goal_poses_robot) - (feedback.current_waypoint)
                         nav_slave.cancelTask()
                         system_master_slave[name_master]["slaves"][nav_slave.getNameRobot()]["status"] = False
@@ -127,13 +127,9 @@ async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
                                 await asyncio.gather(navigate_robot_slave(nav_free_slave, name_master, nav_slave.getNameRobot()))
                             else:
                                 nav_master = system_master_slave[name_master]["nav_class"]
-
-                                if nav_master.getFeedback() is None:
-                                    print("Master disponible, se efectuará la tarea de manera inmediata.")
-                                else:                
-                                    print("Master ocupado, esta en línea de espera.")
-
                                 system_master_slave[name_master]["slave_tasks"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
+                                
+                                is_master_busy(nav_master.getFeedback())
 
                                 await asyncio.gather(navigate_robot_master(nav_master, nav_slave.getNameRobot()))
 
@@ -148,19 +144,28 @@ async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
             await asyncio.sleep(1)
 
 # ---------------------------------------------
+# --- Verificar si el maestro esta ocupado ----
+# ---------------------------------------------
+def is_master_busy(nav_master_feedback):
+    if nav_master_feedback is None:
+        print("Master disponible, se efectuará la tarea de manera inmediata.")
+    else:                
+        print("Master ocupado, esta en línea de espera.")
+
+# ---------------------------------------------
 # -- Encontrar esclavo disponible sin tareas --
 # ---------------------------------------------           
 def find_free_slave(name_master):
-    print("Buscando esclavo disponible para realizar la tarea...")
+    print("Buscando esclavo sin tareas que este disponible para realizar la tarea...")
     find_free_slave = False
     for slave in system_master_slave[name_master]["slaves"]:
         status_slave = system_master_slave[name_master]["slaves"][slave]["status"]
 
         if system_master_slave[name_master]["slaves"][slave]["status"]:
-            print("El esclavo " + slave + " esta disponible para realizar la tarea")
             nav_slave = system_master_slave[name_master]["slaves"][slave]["nav_class"]
 
             if nav_slave.isTaskComplete():
+                print("El esclavo " + slave + " esta disponible para realizar la tarea")
                 find_free_slave = True
                 return find_free_slave, slave
             else:
