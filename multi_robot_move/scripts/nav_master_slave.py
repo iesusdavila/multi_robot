@@ -101,7 +101,7 @@ async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
                     now = nav_slave.get_clock().now()
                     nav_time = nav_slave.getTimeNav(now.nanoseconds - nav_start.nanoseconds)
                     
-                    duration_max_time = Duration(seconds=25.0)
+                    duration_max_time = Duration(seconds=10.0)
                     max_time = nav_slave.getTimeNav(duration_max_time.nanoseconds)
                     
                     if name_slave_pend == nav_slave.getNameRobot():
@@ -119,12 +119,21 @@ async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
                         system_master_slave[name_master]["slaves"][nav_slave.getNameRobot()]["status"] = False
                         
                         if routes_remaining > 0:
+
                             find_slave, free_slave = find_free_slave(name_master)
+                            there_slave_with_one_task, slave_with_one_task = find_slave_with_one_task(name_master, nav_slave.getNameRobot())
+
                             if find_slave:
                                 nav_free_slave = system_master_slave[name_master]["slaves"][free_slave]["nav_class"]
                                 system_master_slave[name_master]["slaves"][free_slave]["task_queue"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
 
                                 await asyncio.gather(navigate_robot_slave(nav_free_slave, name_master, nav_slave.getNameRobot()))
+                            elif there_slave_with_one_task:
+                                nav_slave_with_one_task = system_master_slave[name_master]["slaves"][slave_with_one_task]["nav_class"]
+                                system_master_slave[name_master]["slaves"][slave_with_one_task]["task_queue"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
+
+                                nav_slave.info("El esclavo " + slave_with_one_task + " tiene una tarea pendiente, se le asignará esta tarea")
+                                await asyncio.gather(navigate_robot_slave(nav_slave_with_one_task, name_master, nav_slave.getNameRobot()))
                             else:
                                 nav_master = system_master_slave[name_master]["nav_class"]
                                 system_master_slave[name_master]["slave_tasks"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
@@ -151,6 +160,36 @@ def is_master_busy(nav_master_feedback):
         print("Master disponible, se efectuará la tarea de manera inmediata.")
     else:                
         print("Master ocupado, esta en línea de espera.")
+
+# ---------------------------------------------
+#  Encontrar esclavo disponible con una tarea 
+# ---------------------------------------------
+def find_slave_with_one_task(name_master, name_slave):
+    print("Buscando esclavo con una tarea pendiente que pueda realizar la tarea...")
+    find_slave_with_one_task = False
+    for slave in system_master_slave[name_master]["slaves"]:
+        status_slave = system_master_slave[name_master]["slaves"][slave]["status"]
+        
+        if status_slave and name_slave != slave:
+            nav_slave = system_master_slave[name_master]["slaves"][slave]["nav_class"]
+
+            task_queue = system_master_slave[name_master]["slaves"][slave]["task_queue"]
+            size_task_queue = len(task_queue)
+
+            if size_task_queue == 1:
+                name_slave_task_queue = list(task_queue)[0] 
+                len_goal_poses = len(task_queue[name_slave_task_queue])
+                current_waypoint = nav_slave.getFeedback().current_waypoint
+
+                if (len_goal_poses - current_waypoint) <= 1:
+                    print("El esclavo " + slave + " tiene una tarea pendiente, es elegible para realizar la tarea")
+                    find_slave_with_one_task = True
+                    return find_slave_with_one_task, slave
+                else:
+                    print("El esclavo " + slave + " tiene mas de una tarea pendiente, no es elegible para realizar la tarea")
+
+    print("No hay esclavos disponibles para realizar la tarea")
+    return find_slave_with_one_task, None
 
 # ---------------------------------------------
 # -- Encontrar esclavo disponible sin tareas --
