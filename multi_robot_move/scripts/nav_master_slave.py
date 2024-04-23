@@ -40,7 +40,7 @@ async def navigate_robot_master(nav_master, name_slave):
         name_first_slave = list(system_master_slave[nav_master.getNameRobot()]["slave_tasks"])[0]
 
         if name_first_slave == name_slave:
-            print("Completando tarea pendiente del robot esclavo: " + name_first_slave)
+            nav_master.info("Completando tarea pendiente del robot esclavo: " + name_slave)
 
             goal_poses_robot = system_master_slave[nav_master.getNameRobot()]["slave_tasks"][name_first_slave]
             nav_master.followWaypoints(goal_poses_robot)
@@ -64,9 +64,9 @@ async def navigate_robot_master(nav_master, name_slave):
                         nav_master.cancelTask()
                         system_master_slave[name_master]["status"] = False
 
-            print("Tarea completada")
+            nav_master.info("Tarea completada")
             system_master_slave[nav_master.getNameRobot()]["slave_tasks"].pop(name_first_slave)
-            print("Tarea eliminada de la lista de tareas pendientes")
+            nav_master.info("Tarea eliminada de la lista de tareas pendientes")
 
             break
         else:
@@ -133,9 +133,9 @@ async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
 
                                 await asyncio.gather(navigate_robot_master(nav_master, nav_slave.getNameRobot()))
 
-            print("Tarea completada")
+            nav_slave.info("Tarea completada")
             system_master_slave[name_master]["slaves"][nav_slave.getNameRobot()]["task_queue"].pop(name_first_slave_task)
-            print("Tarea eliminada de la lista de tareas pendientes")
+            nav_slave.info("Tarea eliminada de la lista de tareas pendientes")
 
             break
         else:
