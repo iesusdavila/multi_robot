@@ -2,7 +2,7 @@
 
 import rclpy
 from rclpy.node import Node
-from NavigationClient import BasicNavigator, TaskResult
+from NavigationClient import NavigationRobot, TaskResult
 from PoseUtils import PoseUtils
 from DataRobots import DataRobots
 import time
@@ -245,12 +245,12 @@ async def main(args=None):
         is_master = robot['is_master']
         
         if is_master and not(name_robot in system_master_slave):
-            nav_master = BasicNavigator(namespace=name_robot)
+            nav_master = NavigationRobot(namespace=name_robot)
 
             system_master_slave[name_robot] = {"nav_class": nav_master, "slaves": {}, "slave_tasks": {}, "status": True}
         
         if not is_master:
-            nav_slave = BasicNavigator(namespace=name_robot)
+            nav_slave = NavigationRobot(namespace=name_robot)
 
             list_poses_wo_process = data_nav_robots.get_list_poses(robot)  # obtener lista de poses sin convertir en PoseStamped
             goal_poses_robot = PoseUtils.create_poses(list_poses_wo_process)  # convertir a PoseStamped
@@ -258,7 +258,7 @@ async def main(args=None):
             name_master_robot = robot['name_master']                
 
             if not(name_master_robot in system_master_slave):
-                nav_master = BasicNavigator(namespace=name_master_robot)
+                nav_master = NavigationRobot(namespace=name_master_robot)
 
                 system_master_slave[name_master_robot] = {"nav_class": nav_master, "slaves": {}, "slave_tasks": {}, "status": True}
             

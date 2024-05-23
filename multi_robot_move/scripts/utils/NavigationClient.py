@@ -35,7 +35,7 @@ class TaskResult(Enum):
     FAILED = 3
 
 
-class BasicNavigator(Node):
+class NavigationRobot(Node):
 
     def __init__(self, namespace=''):
         super().__init__(node_name='navigation_client_'+namespace, namespace=namespace)
