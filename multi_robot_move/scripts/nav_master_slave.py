@@ -35,14 +35,15 @@ def generate_message(name_robot, current_waypoint, number_poses, nav_time=(0,0,0
 # ---------------------------------------------
 async def navigate_robot_master(nav_master, name_slave):
 
-    while system_master_slave[nav_master.getNameRobot()]["slave_tasks"]:
+    list_slave_tasks = system_master_slave[nav_master.getNameRobot()]["slave_tasks"]
+    while list_slave_tasks:
 
-        name_first_slave = list(system_master_slave[nav_master.getNameRobot()]["slave_tasks"])[0]
+        name_first_slave = list(list_slave_tasks)[0]
 
         if name_first_slave == name_slave:
             nav_master.info("Completando tarea pendiente del robot esclavo: " + name_slave)
 
-            goal_poses_robot = system_master_slave[nav_master.getNameRobot()]["slave_tasks"][name_first_slave]
+            goal_poses_robot = list_slave_tasks[name_first_slave]
             nav_master.followWaypoints(goal_poses_robot)
 
             nav_start = nav_master.get_clock().now()
@@ -65,7 +66,7 @@ async def navigate_robot_master(nav_master, name_slave):
                         system_master_slave[name_master]["status"] = False
 
             nav_master.info("Tarea completada")
-            system_master_slave[nav_master.getNameRobot()]["slave_tasks"].pop(name_first_slave)
+            list_slave_tasks.pop(name_first_slave)
             nav_master.info("Tarea eliminada de la lista de tareas pendientes")
 
             break
