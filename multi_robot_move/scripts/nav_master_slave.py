@@ -78,18 +78,18 @@ async def navigate_robot_master(nav_master, name_slave):
 # ---------------------------------------------
 async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
 
-    while system_master_slave[name_master]["slaves"][nav_slave.getNameRobot()]["task_queue"]:
+    slave = system_master_slave[name_master]["slaves"][nav_slave.getNameRobot()]
+    while slave["task_queue"]:
 
-        name_first_slave_task = list(system_master_slave[name_master]["slaves"][nav_slave.getNameRobot()]["task_queue"])[0]
+        name_first_slave_task = list(slave["task_queue"])[0]
 
         if name_slave_pend is None:
             name_slave_pend = nav_slave.getNameRobot()
 
         if name_first_slave_task == name_slave_pend:
-            goal_poses_robot = system_master_slave[name_master]["slaves"][nav_slave.getNameRobot()]["task_queue"][name_first_slave_task]
-
+            
+            goal_poses_robot = slave["task_queue"][name_first_slave_task]
             nav_slave.followWaypoints(goal_poses_robot)
-
             nav_start = nav_slave.get_clock().now()
 
             while not nav_slave.isTaskComplete():
@@ -111,26 +111,27 @@ async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
 
                     if now - nav_start > Duration(seconds=600.0):
                         nav_master.cancelTask()
-                        system_master_slave[name_master]["status"] = False
+                        slave["status"] = False
                     
                     if now - nav_start > duration_max_time:
                         routes_remaining = len(goal_poses_robot) - (feedback.current_waypoint)
                         nav_slave.cancelTask()
-                        system_master_slave[name_master]["slaves"][nav_slave.getNameRobot()]["status"] = False
+                        slave["status"] = False
                         
                         if routes_remaining > 0:
 
-                            find_slave, free_slave = find_free_slave(name_master)
-                            there_slave_with_one_task, slave_with_one_task = find_slave_with_one_task(name_master, nav_slave.getNameRobot())
+                            found_free_slave, free_slave = find_free_slave(name_master)
+                            found_slave_with_one_task, slave_with_one_task = find_slave_with_one_task(name_master, nav_slave.getNameRobot())
 
-                            if find_slave:
-                                nav_free_slave = system_master_slave[name_master]["slaves"][free_slave]["nav_class"]
-                                system_master_slave[name_master]["slaves"][free_slave]["task_queue"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
+                            list_slaves = system_master_slave[name_master]["slaves"]
+                            if found_free_slave:
+                                nav_free_slave = list_slaves[free_slave]["nav_class"]
+                                list_slaves[free_slave]["task_queue"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
 
                                 await asyncio.gather(navigate_robot_slave(nav_free_slave, name_master, nav_slave.getNameRobot()))
-                            elif there_slave_with_one_task:
-                                nav_slave_with_one_task = system_master_slave[name_master]["slaves"][slave_with_one_task]["nav_class"]
-                                system_master_slave[name_master]["slaves"][slave_with_one_task]["task_queue"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
+                            elif found_slave_with_one_task:
+                                nav_slave_with_one_task = list_slaves[slave_with_one_task]["nav_class"]
+                                list_slaves[slave_with_one_task]["task_queue"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
 
                                 nav_slave.info("El esclavo " + slave_with_one_task + " tiene una tarea pendiente, se le asignará esta tarea")
                                 await asyncio.gather(navigate_robot_slave(nav_slave_with_one_task, name_master, nav_slave.getNameRobot()))
@@ -165,15 +166,18 @@ def is_master_busy(nav_master_feedback):
 #  Encontrar esclavo disponible con una tarea 
 # ---------------------------------------------
 def find_slave_with_one_task(name_master, name_slave):
-    print("Buscando esclavo con una tarea pendiente que pueda realizar la tarea...")
+    print("---> Buscando esclavo con una tarea pendiente que pueda realizar la tarea... <---")
     find_slave_with_one_task = False
-    for slave in system_master_slave[name_master]["slaves"]:
-        status_slave = system_master_slave[name_master]["slaves"][slave]["status"]
+    
+    list_slaves = system_master_slave[name_master]["slaves"]
+    for name_slave_iter in list_slaves:
+        slave = list_slaves[name_slave_iter]
+        status_slave = slave["status"]
         
-        if status_slave and name_slave != slave:
-            nav_slave = system_master_slave[name_master]["slaves"][slave]["nav_class"]
+        if status_slave and name_slave != name_slave_iter:
+            nav_slave = slave["nav_class"]
 
-            task_queue = system_master_slave[name_master]["slaves"][slave]["task_queue"]
+            task_queue = slave["task_queue"]
             size_task_queue = len(task_queue)
 
             if size_task_queue == 1:
@@ -182,11 +186,11 @@ def find_slave_with_one_task(name_master, name_slave):
                 current_waypoint = nav_slave.getFeedback().current_waypoint
 
                 if (len_goal_poses - current_waypoint) <= 1:
-                    print("El esclavo " + slave + " tiene una tarea pendiente, es elegible para realizar la tarea")
+                    print("El esclavo " + name_slave_iter + " tiene una tarea pendiente, es elegible para realizar la tarea")
                     find_slave_with_one_task = True
-                    return find_slave_with_one_task, slave
+                    return find_slave_with_one_task, name_slave_iter
                 else:
-                    print("El esclavo " + slave + " tiene mas de una tarea pendiente, no es elegible para realizar la tarea")
+                    print("El esclavo " + name_slave_iter + " tiene mas de una tarea pendiente, no es elegible para realizar la tarea")
 
     print("No hay esclavos disponibles para realizar la tarea")
     return find_slave_with_one_task, None
@@ -195,18 +199,21 @@ def find_slave_with_one_task(name_master, name_slave):
 # -- Encontrar esclavo disponible sin tareas --
 # ---------------------------------------------           
 def find_free_slave(name_master):
-    print("Buscando esclavo sin tareas que este disponible para realizar la tarea...")
+    print("---> Buscando esclavo sin tareas que este disponible para realizar la tarea... <---")
     find_free_slave = False
-    for slave in system_master_slave[name_master]["slaves"]:
-        status_slave = system_master_slave[name_master]["slaves"][slave]["status"]
 
-        if system_master_slave[name_master]["slaves"][slave]["status"]:
-            nav_slave = system_master_slave[name_master]["slaves"][slave]["nav_class"]
+    list_slaves = system_master_slave[name_master]["slaves"]
+    for slave_name in list_slaves:
+        slave = list_slaves[slave_name]
+        status_slave = slave["status"]
+
+        if status_slave:
+            nav_slave = slave["nav_class"]
 
             if nav_slave.isTaskComplete():
-                print("El esclavo " + slave + " esta disponible para realizar la tarea")
+                print("El esclavo " + slave_name + " esta disponible para realizar la tarea")
                 find_free_slave = True
-                return find_free_slave, slave
+                return find_free_slave, slave_name
             else:
                 print("Hay un esclavo disponible pero esta ocupado en otra tarea")
 
