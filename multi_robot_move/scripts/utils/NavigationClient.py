@@ -52,14 +52,9 @@ class BasicNavigator(Node):
             depth=1,
         )
 
-        self.nav_through_poses_client = ActionClient(
-            self, NavigateThroughPoses, 'navigate_through_poses'
-        )
-        self.nav_to_pose_client = ActionClient(self, NavigateToPose, 'navigate_to_pose')
         self.follow_waypoints_client = ActionClient(
             self, FollowWaypoints, 'follow_waypoints'
         )
-        self.follow_path_client = ActionClient(self, FollowPath, 'follow_path')
         self.compute_path_to_pose_client = ActionClient(
             self, ComputePathToPose, 'compute_path_to_pose'
         )
@@ -105,10 +100,7 @@ class BasicNavigator(Node):
         self.destroy_node()
 
     def destroy_node(self):
-        self.nav_through_poses_client.destroy()
-        self.nav_to_pose_client.destroy()
         self.follow_waypoints_client.destroy()
-        self.follow_path_client.destroy()
         self.compute_path_to_pose_client.destroy()
         self.compute_path_through_poses_client.destroy()
         self.smoother_client.destroy()
@@ -116,66 +108,6 @@ class BasicNavigator(Node):
         self.backup_client.destroy()
         self.drive_on_heading_client.destroy()
         super().destroy_node()
-
-    def goThroughPoses(self, poses, behavior_tree=''):
-        """Send a `NavThroughPoses` action request."""
-        self.debug("Waiting for 'NavigateThroughPoses' action server")
-        while not self.nav_through_poses_client.wait_for_server(timeout_sec=1.0):
-            self.info("'NavigateThroughPoses' action server not available, waiting...")
-
-        goal_msg = NavigateThroughPoses.Goal()
-        goal_msg.poses = poses
-        goal_msg.behavior_tree = behavior_tree
-
-        self.info(f'Navigating with {len(goal_msg.poses)} goals....')
-        send_goal_future = self.nav_through_poses_client.send_goal_async(
-            goal_msg, self._feedbackCallback
-        )
-        rclpy.spin_until_future_complete(self, send_goal_future)
-        self.goal_handle = send_goal_future.result()
-
-        if not self.goal_handle.accepted:
-            self.error(f'Goal with {len(poses)} poses was rejected!')
-            return False
-
-        self.result_future = self.goal_handle.get_result_async()
-        return True
-
-    def goToPose(self, pose, behavior_tree=''):
-        """Send a `NavToPose` action request."""
-        self.debug("Waiting for 'NavigateToPose' action server")
-        while not self.nav_to_pose_client.wait_for_server(timeout_sec=1.0):
-            self.info("'NavigateToPose' action server not available, waiting...")
-
-        goal_msg = NavigateToPose.Goal()
-        goal_msg.pose = pose
-        goal_msg.behavior_tree = behavior_tree
-
-        self.info(
-            'Navigating to goal: '
-            + str(pose.pose.position.x)
-            + ' '
-            + str(pose.pose.position.y)
-            + '...'
-        )
-        send_goal_future = self.nav_to_pose_client.send_goal_async(
-            goal_msg, self._feedbackCallback
-        )
-        rclpy.spin_until_future_complete(self, send_goal_future)
-        self.goal_handle = send_goal_future.result()
-
-        if not self.goal_handle.accepted:
-            self.error(
-                'Goal to '
-                + str(pose.pose.position.x)
-                + ' '
-                + str(pose.pose.position.y)
-                + ' was rejected!'
-            )
-            return False
-
-        self.result_future = self.goal_handle.get_result_async()
-        return True
 
     def followWaypoints(self, poses):
         """Send a `FollowWaypoints` action request."""
@@ -284,31 +216,6 @@ class BasicNavigator(Node):
 
         if not self.goal_handle.accepted:
             self.error('Assisted Teleop request was rejected!')
-            return False
-
-        self.result_future = self.goal_handle.get_result_async()
-        return True
-
-    def followPath(self, path, controller_id='', goal_checker_id=''):
-        """Send a `FollowPath` action request."""
-        self.debug("Waiting for 'FollowPath' action server")
-        while not self.follow_path_client.wait_for_server(timeout_sec=1.0):
-            self.info("'FollowPath' action server not available, waiting...")
-
-        goal_msg = FollowPath.Goal()
-        goal_msg.path = path
-        goal_msg.controller_id = controller_id
-        goal_msg.goal_checker_id = goal_checker_id
-
-        self.info('Executing path...')
-        send_goal_future = self.follow_path_client.send_goal_async(
-            goal_msg, self._feedbackCallback
-        )
-        rclpy.spin_until_future_complete(self, send_goal_future)
-        self.goal_handle = send_goal_future.result()
-
-        if not self.goal_handle.accepted:
-            self.error('Follow path was rejected!')
             return False
 
         self.result_future = self.goal_handle.get_result_async()
