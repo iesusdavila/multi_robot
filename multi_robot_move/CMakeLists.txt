@@ -7,17 +7,19 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(rclcpp REQUIRED)
+find_package(rclpy REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(nav2_msgs REQUIRED)
-find_package(rclcpp_action REQUIRED)
+find_package(lifecycle_msgs REQUIRED)
+find_package(action_msgs REQUIRED)
 
 
 set(DEPENDENCIES
-  "rclcpp"
+  "rclpy"
   "geometry_msgs"
   "nav2_msgs"
-  "rclcpp_action"
+  "lifecycle_msgs"
+  "action_msgs"
 )
 
 install(TARGETS ${EXEC_NAME}
@@ -32,8 +34,9 @@ install(PROGRAMS
   DESTINATION lib/${PROJECT_NAME}
 )
 
-ament_export_dependencies(rclcpp)
+ament_export_dependencies(rclpy)
 ament_export_dependencies(geometry_msgs)
 ament_export_dependencies(nav2_msgs)
-ament_export_dependencies(rclcpp_action)
+ament_export_dependencies(lifecycle_msgs)
+ament_export_dependencies(action_msgs)
 ament_package()
