@@ -98,7 +98,6 @@ def generate_launch_description():
             os.path.join(nav_launch_dir, 'bringup_nav.launch.py')
         ),
         launch_arguments={  
-            'slam': 'False',
             'namespace': robot_namespace,
             'map': map_yaml_file,
             'map_server': 'False',

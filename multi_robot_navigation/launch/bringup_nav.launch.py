@@ -18,7 +18,6 @@ def generate_launch_description():
     launch_dir = os.path.join(bringup_dir, 'launch')
 
     namespace = LaunchConfiguration('namespace')
-    slam = LaunchConfiguration('slam')
     map_yaml_file = LaunchConfiguration('map')
     map_server=LaunchConfiguration('map_server')
     use_sim_time = LaunchConfiguration('use_sim_time')
@@ -48,11 +47,6 @@ def generate_launch_description():
         'namespace',
         default_value='',
         description='Top-level namespace')
-
-    declare_slam_cmd = DeclareLaunchArgument(
-        'slam',
-        default_value='False',
-        description='Whether run a SLAM')
 
     declare_map_yaml_cmd = DeclareLaunchArgument(
         'map',
@@ -104,17 +98,7 @@ def generate_launch_description():
             output='screen'),
 
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(os.path.join(launch_dir, 'slam.launch.py')),
-            condition=IfCondition(slam),
-            launch_arguments={'namespace': namespace,
-                              'use_sim_time': use_sim_time,
-                              'autostart': autostart,
-                              'use_respawn': use_respawn,
-                              'params_file': params_file}.items()),
-       
-        IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(launch_dir, 'localization.launch.py')),
-            condition=IfCondition(PythonExpression(['not ', slam])),
             launch_arguments={'namespace': namespace,
                               'map': map_yaml_file,
                               'map_server': map_server,
@@ -141,7 +125,6 @@ def generate_launch_description():
     ld.add_action(stdout_linebuf_envvar)
     
     ld.add_action(declare_namespace_cmd)
-    ld.add_action(declare_slam_cmd)
     ld.add_action(declare_map_yaml_cmd)
     ld.add_action(declare_use_sim_time_cmd)
     ld.add_action(declare_params_file_cmd)
