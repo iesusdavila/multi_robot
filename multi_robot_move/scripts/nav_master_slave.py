@@ -120,29 +120,7 @@ async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
                         slave["status"] = False
                         
                         if routes_remaining > 0:
-
-                            found_free_slave, free_slave = find_free_slave(name_master)
-                            found_slave_with_one_task, slave_with_one_task = find_slave_with_one_task(name_master, nav_slave.getNameRobot())
-
-                            list_slaves = system_master_slave[name_master]["slaves"]
-                            if found_free_slave:
-                                nav_free_slave = list_slaves[free_slave]["nav_class"]
-                                list_slaves[free_slave]["task_queue"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
-
-                                await asyncio.gather(navigate_robot_slave(nav_free_slave, name_master, nav_slave.getNameRobot()))
-                            elif found_slave_with_one_task:
-                                nav_slave_with_one_task = list_slaves[slave_with_one_task]["nav_class"]
-                                list_slaves[slave_with_one_task]["task_queue"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
-
-                                nav_slave.info("El esclavo " + slave_with_one_task + " tiene una tarea pendiente, se le asignará esta tarea")
-                                await asyncio.gather(navigate_robot_slave(nav_slave_with_one_task, name_master, nav_slave.getNameRobot()))
-                            else:
-                                nav_master = system_master_slave[name_master]["nav_class"]
-                                system_master_slave[name_master]["slave_tasks"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
-                                
-                                is_master_busy(nav_master.getFeedback())
-
-                                await asyncio.gather(navigate_robot_master(nav_master, nav_slave.getNameRobot()))
+                            await send_goal_other_robot(name_master, nav_slave, goal_poses_robot, feedback)
 
             nav_slave.info("Tarea completada")
             system_master_slave[name_master]["slaves"][nav_slave.getNameRobot()]["task_queue"].pop(name_first_slave_task)
@@ -153,6 +131,37 @@ async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
             if name_slave_pend != nav_slave.getNameRobot():
                 print("El esclavo " + name_slave_pend + " esta esperando que la tarea enviada al esclavo " + name_first_slave_task + " sea completada una vez que dicho esclavo complete su tarea interna.")
             await asyncio.sleep(1)
+
+# ---------------------------------------------
+#  Delegar tarea a otro robot para que la haga 
+# ---------------------------------------------
+async def send_goal_other_robot(name_master, nav_slave, goal_poses_robot, feedback):
+    await asyncio.sleep(1)
+
+    found_free_slave, free_slave = find_free_slave(name_master)
+    found_slave_with_one_task, slave_with_one_task = find_slave_with_one_task(name_master, nav_slave.getNameRobot())
+
+    await asyncio.sleep(1)
+
+    list_slaves = system_master_slave[name_master]["slaves"]
+    if found_free_slave:
+        nav_free_slave = list_slaves[free_slave]["nav_class"]
+        list_slaves[free_slave]["task_queue"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
+
+        await asyncio.gather(navigate_robot_slave(nav_free_slave, name_master, nav_slave.getNameRobot()))
+    elif found_slave_with_one_task:
+        nav_slave_with_one_task = list_slaves[slave_with_one_task]["nav_class"]
+        list_slaves[slave_with_one_task]["task_queue"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
+
+        nav_slave.info("El esclavo " + slave_with_one_task + " tiene una tarea pendiente, se le asignará esta tarea")
+        await asyncio.gather(navigate_robot_slave(nav_slave_with_one_task, name_master, nav_slave.getNameRobot()))
+    else:
+        nav_master = system_master_slave[name_master]["nav_class"]
+        system_master_slave[name_master]["slave_tasks"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
+        
+        is_master_busy(nav_master.getFeedback())
+
+        await asyncio.gather(navigate_robot_master(nav_master, nav_slave.getNameRobot()))
 
 # ---------------------------------------------
 # --- Verificar si el maestro esta ocupado ----
