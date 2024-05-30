@@ -22,7 +22,7 @@ def generate_message(name_robot, current_waypoint, number_poses, nav_time=(0,0,0
     hour_max, min_max, sec_max = max_time
 
     msg = 'Executing current waypoint ' + str(name_robot) + ': '+ str(current_waypoint + 1) + '/' + str(number_poses) 
-    msg += ' - ' + str(hour_nav-9) + ':' + str(min_nav) + ':' + str(sec_nav) + ' / ' + str(hour_max-9) + ':' + str(min_max) + ':' + str(sec_max)
+    msg += ' - ' + str(hour_nav-19) + ':' + str(min_nav) + ':' + str(sec_nav) + ' / ' + str(hour_max-19) + ':' + str(min_max) + ':' + str(sec_max)
 
     # validar si la navegación es tarea pendiente de un esclavo
     if name_slave is not None: 
