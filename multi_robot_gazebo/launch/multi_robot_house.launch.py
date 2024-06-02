@@ -100,7 +100,7 @@ def generate_launch_description():
                 'qw': TextSubstitution(text=str(quaternion_from_euler(robot['yaw'])[1])),
                 'rviz_view': robot['rviz_view'],
                 'rviz_config_file': os.path.join(pkg_multi_robot_navigation, 'rviz', 'multi_nav2_default_view.rviz'),
-                'nav_params_file': os.path.join(pkg_multi_robot_navigation, 'params', 'nav2_params.yaml'),
+                'nav_params_file': robot['nav_param_path'],
                 'map_yaml_file': os.path.join(pkg_multi_robot_navigation, 'maps', 'map_house.yaml'),
             }.items(),
             condition=IfCondition(navigation)
