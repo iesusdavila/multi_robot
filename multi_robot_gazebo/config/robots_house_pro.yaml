@@ -4,7 +4,7 @@ robots:
     y_pose: -1.0
     z_pose: 0.01
     yaw: 1.5708
-    rviz_view: "true"
+    rviz_view: "false"
     urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle_pi.urdf"
     sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle_pi/model.sdf"
     nav_param_path: "/home/rov-robot/colcon_ws/src/turtlebot3/turtlebot3_navigation2/param/waffle_pi.yaml"
