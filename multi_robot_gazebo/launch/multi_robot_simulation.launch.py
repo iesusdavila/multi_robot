@@ -55,32 +55,62 @@ def execute_multi_robot(context, *args, **kwargs):
     nodes_exec.append(gzclient_cmd)
 
     for robot in robots:
-        robot_state_publisher_cmd = IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                os.path.join(launch_file_dir, 'robots_states_publishers.launch.py')
-            ),
-            launch_arguments={
-                'use_sim_time': use_sim_time,
-                'robot_namespace': robot['name'],
-                'urdf_path': robot['urdf_path'],
-            }.items()
-        )
+        extension_file = robot['urdf_path'].split(".")[-1]
+        if extension_file == "urdf":
+            robot_state_publisher_cmd = IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(launch_file_dir, 'robots_states_publishers.launch.py')
+                ),
+                launch_arguments={
+                    'use_sim_time': use_sim_time,
+                    'robot_namespace': robot['name'],
+                    'urdf_path': robot['urdf_path'],
+                }.items()
+            )
+        else:
+            robot_state_publisher_cmd = IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(launch_file_dir, 'robots_states_publishers_xacro.launch.py')
+                ),
+                launch_arguments={
+                    'use_sim_time': use_sim_time,
+                    'robot_namespace': robot['name'],
+                    'xacro_path': robot['urdf_path'],
+                }.items()
+            )
 
-        spawn_entity_cmd = IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                os.path.join(launch_file_dir, 'spawn_robots.launch.py')
-            ),
-            launch_arguments={
-                'use_sim_time': use_sim_time,
-                'urdf_path': robot['sdf_path'],
-                'x_pose': TextSubstitution(text=str(robot['x_pose'])),
-                'y_pose': TextSubstitution(text=str(robot['y_pose'])),
-                'z_pose': TextSubstitution(text=str(robot['z_pose'])),
-                'yaw': TextSubstitution(text=str(robot['yaw'])), 
-                'robot_name': robot['name'],
-                'robot_namespace': robot['name'],
-            }.items()
-        )
+        if robot["sdf_path"] == "":
+            spawn_entity_cmd = IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(launch_file_dir, 'spawn_robots_topic.launch.py')
+                ),
+                launch_arguments={
+                    'use_sim_time': use_sim_time,
+                    'robot_description_topic': '/'+robot['name']+'/robot_description',
+                    'x_pose': TextSubstitution(text=str(robot['x_pose'])),
+                    'y_pose': TextSubstitution(text=str(robot['y_pose'])),
+                    'z_pose': TextSubstitution(text=str(robot['z_pose'])),
+                    'yaw': TextSubstitution(text=str(robot['yaw'])), 
+                    'robot_name': robot['name'],
+                    'robot_namespace': robot['name'],
+                }.items()
+            )
+        else:
+            spawn_entity_cmd = IncludeLaunchDescription(
+                PythonLaunchDescriptionSource(
+                    os.path.join(launch_file_dir, 'spawn_robots.launch.py')
+                ),
+                launch_arguments={
+                    'use_sim_time': use_sim_time,
+                    'urdf_path': robot['sdf_path'],
+                    'x_pose': TextSubstitution(text=str(robot['x_pose'])),
+                    'y_pose': TextSubstitution(text=str(robot['y_pose'])),
+                    'z_pose': TextSubstitution(text=str(robot['z_pose'])),
+                    'yaw': TextSubstitution(text=str(robot['yaw'])), 
+                    'robot_name': robot['name'],
+                    'robot_namespace': robot['name'],
+                }.items()
+            )
 
         navigation_robot_cmd = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
