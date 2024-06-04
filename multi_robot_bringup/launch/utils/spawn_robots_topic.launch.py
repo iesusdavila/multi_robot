@@ -8,7 +8,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
+    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
     robot_description_topic = LaunchConfiguration('robot_description_topic', default='/andino1/robot_description')
     robot_namespace = LaunchConfiguration('robot_namespace', default='tb')
     robot_name = LaunchConfiguration('robot_name', default='tb')
@@ -16,6 +16,10 @@ def generate_launch_description():
     y_pose = LaunchConfiguration('y_pose', default='0.0')
     z_pose = LaunchConfiguration('z_pose', default='0.01')
     yaw = LaunchConfiguration('yaw', default='0.0')
+
+    declare_use_sim_time = DeclareLaunchArgument(
+        'use_sim_time', default_value='true',
+        description='Use simulation (Gazebo) clock if true')
 
     declare_robot_description_topic = DeclareLaunchArgument(
         'robot_description_topic', default_value='/andino1/robot_description',
@@ -45,7 +49,7 @@ def generate_launch_description():
         'yaw', default_value='0.0',
         description='Specify yaw of the robot')
 
-    spawn_turtlebot3_burger = Node(
+    spawn_robot_cmd = Node(
         package="gazebo_ros",
         executable="spawn_entity.py",
         arguments=[
@@ -63,6 +67,7 @@ def generate_launch_description():
 
     ld = LaunchDescription()
 
+    ld.add_action(declare_use_sim_time)
     ld.add_action(declare_robot_description_topic)
     ld.add_action(declare_robot_namespace)
     ld.add_action(declare_robot_name)
@@ -71,6 +76,6 @@ def generate_launch_description():
     ld.add_action(declare_z_pose)
     ld.add_action(declare_yaw)
 
-    ld.add_action(spawn_turtlebot3_burger)
+    ld.add_action(spawn_robot_cmd)
 
     return ld

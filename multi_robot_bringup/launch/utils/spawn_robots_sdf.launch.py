@@ -8,9 +8,8 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description():
-    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
-    urdf_path = LaunchConfiguration('urdf_path', 
-                        default=os.path.join(get_package_share_directory('turtlebot3_gazebo'), 'models', 'turtlebot3_burger', 'model.sdf'))
+    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
+    urdf_path = LaunchConfiguration('urdf_path', default='')
     robot_namespace = LaunchConfiguration('robot_namespace', default='tb')
     robot_name = LaunchConfiguration('robot_name', default='tb')
     x_pose = LaunchConfiguration('x_pose', default='0.0')
@@ -18,8 +17,12 @@ def generate_launch_description():
     z_pose = LaunchConfiguration('z_pose', default='0.01')
     yaw = LaunchConfiguration('yaw', default='0.0')
 
+    declare_use_sim_time = DeclareLaunchArgument(
+        'use_sim_time', default_value='true',
+        description='Use simulation (Gazebo) clock if true')
+        
     declare_urdf_path = DeclareLaunchArgument(
-        'urdf_path', default_value=os.path.join(get_package_share_directory('turtlebot3_gazebo'), 'models', 'turtlebot3_burger', 'model.sdf'),
+        'urdf_path', default_value='',
         description='Urdf path of the robot')
 
     declare_robot_namespace = DeclareLaunchArgument(
@@ -46,7 +49,7 @@ def generate_launch_description():
         'yaw', default_value='0.0',
         description='Specify yaw of the robot')
 
-    spawn_turtlebot3_burger = Node(
+    spawn_robot_cmd = Node(
         package="gazebo_ros",
         executable="spawn_entity.py",
         arguments=[
@@ -64,6 +67,7 @@ def generate_launch_description():
 
     ld = LaunchDescription()
 
+    ld.add_action(declare_use_sim_time)
     ld.add_action(declare_urdf_path)
     ld.add_action(declare_robot_namespace)
     ld.add_action(declare_robot_name)
@@ -72,6 +76,6 @@ def generate_launch_description():
     ld.add_action(declare_z_pose)
     ld.add_action(declare_yaw)
 
-    ld.add_action(spawn_turtlebot3_burger)
+    ld.add_action(spawn_robot_cmd)
 
     return ld
