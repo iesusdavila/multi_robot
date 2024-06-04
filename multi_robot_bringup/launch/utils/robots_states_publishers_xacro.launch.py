@@ -8,8 +8,8 @@ from launch_ros.actions import Node
 import xacro
 
 def execute_rsp(context, *args, **kwargs):
-    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
-    xacro_path = LaunchConfiguration('xacro_path', default=os.path.join(get_package_share_directory('turtlebot3_gazebo'), 'urdf', 'turtlebot3_burger.urdf'))
+    use_sim_time = LaunchConfiguration('use_sim_time', default='true')
+    xacro_path = LaunchConfiguration('xacro_path', default='')
     robot_namespace = LaunchConfiguration('robot_namespace', default='tb')
 
     remappings = [("/tf", "tf"), ("/tf_static", "tf_static")]
@@ -17,29 +17,29 @@ def execute_rsp(context, *args, **kwargs):
     nodes_exec = []
 
     robot_description_config = xacro.process_file(xacro_path.perform(context))
-    turtlebot_state_publisher = Node(
+    robot_state_publisher_cmd = Node(
         package="robot_state_publisher",
         namespace=robot_namespace,
         executable="robot_state_publisher",
         parameters=[{
                     "robot_description": robot_description_config.toxml(),
-                    "use_sim_time": False,
+                    "use_sim_time": use_sim_time,
                     "publish_frequency": 10.0}],
         output="both",
         remappings=remappings,
     )
 
-    nodes_exec.append(turtlebot_state_publisher)
+    nodes_exec.append(robot_state_publisher_cmd)
 
     return nodes_exec
 
 def generate_launch_description():
 
     declare_use_sim_time = DeclareLaunchArgument(
-        'use_sim_time', default_value='false',
+        'use_sim_time', default_value='true',
         description='Use simulation/Gazebo clock if true')
     declare_xacro_path = DeclareLaunchArgument(
-        'xacro_path', default_value=os.path.join(get_package_share_directory('turtlebot3_gazebo'), 'urdf', 'turtlebot3_burger.urdf'),
+        'xacro_path', default_value='',
         description='Xacro path of the robot')
     declare_robot_namespace = DeclareLaunchArgument(
         'robot_namespace', default_value='tb',
