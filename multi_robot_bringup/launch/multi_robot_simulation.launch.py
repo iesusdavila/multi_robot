@@ -137,7 +137,7 @@ def execute_multi_robot(context, *args, **kwargs):
                 'rviz_view': robot['rviz_view'],
                 'rviz_config_file': os.path.join(pkg_multi_robot_navigation, 'rviz', 'multi_nav2_default_view.rviz'),
                 'nav_params_file': robot['nav_param_path'],
-                'map_yaml_file': os.path.join(pkg_multi_robot_navigation, 'maps', 'map_house.yaml'),
+                'map_yaml_file': world['map_path'],
             }.items(),
             condition=IfCondition(navigation)
         )

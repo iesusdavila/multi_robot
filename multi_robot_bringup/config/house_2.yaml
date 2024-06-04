@@ -1,6 +1,7 @@
 world:
   name: house_world
   world_path: "/home/rov-robot/project_ws/src/multi_robot/multi_robot_gazebo/worlds/house.world"
+  map_path: "/home/rov-robot/project_ws/src/multi_robot/multi_robot_navigation/maps/map_house.yaml"
 robots:
   - name: tb1
     x_pose: 6.0
