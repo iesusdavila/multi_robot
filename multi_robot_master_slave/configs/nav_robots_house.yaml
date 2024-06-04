@@ -1,5 +1,5 @@
 robots:
-  - name: tb1
+  - name: andino1
     is_master: false
     name_master: tb2
     pose_goal_1:
