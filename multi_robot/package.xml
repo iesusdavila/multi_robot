@@ -12,7 +12,7 @@
 
   <exec_depend>multi_robot_bringup</exec_depend>
   <exec_depend>multi_robot_gazebo</exec_depend>
-  <exec_depend>multi_robot_move</exec_depend>
+  <exec_depend>multi_robot_master_slave</exec_depend>
   <exec_depend>multi_robot_navigation</exec_depend>
 
   <export>
