@@ -26,6 +26,70 @@ def generate_robots(sim_param_file):
     print("path world: ", robots_data['world']['world_path'])
     return robots_data['robots'], robots_data['world']
 
+def select_rsp_launch(launch_file_dir, robot, use_sim_time):
+    extension_file = robot['urdf_path'].split(".")[-1]
+
+    if extension_file == "urdf":
+        robot_state_publisher_cmd = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(launch_file_dir, 'robots_states_publishers_urdf.launch.py')
+            ),
+            launch_arguments={
+                'use_sim_time': use_sim_time,
+                'robot_namespace': robot['name'],
+                'urdf_path': robot['urdf_path'],
+            }.items()
+        )
+    else:
+        robot_state_publisher_cmd = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(launch_file_dir, 'robots_states_publishers_xacro.launch.py')
+            ),
+            launch_arguments={
+                'use_sim_time': use_sim_time,
+                'robot_namespace': robot['name'],
+                'xacro_path': robot['urdf_path'],
+            }.items()
+        )
+    
+    return robot_state_publisher_cmd
+
+def select_spawn_launch(launch_file_dir, robot, use_sim_time):
+    if robot['sdf_path'] == "":
+        spawn_entity_cmd = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(launch_file_dir, 'spawn_robots_topic.launch.py')
+            ),
+            launch_arguments={
+                'use_sim_time': use_sim_time,
+                'robot_description_topic': '/'+robot['name']+'/robot_description',
+                'x_pose': TextSubstitution(text=str(robot['x_pose'])),
+                'y_pose': TextSubstitution(text=str(robot['y_pose'])),
+                'z_pose': TextSubstitution(text=str(robot['z_pose'])),
+                'yaw': TextSubstitution(text=str(robot['yaw'])), 
+                'robot_name': robot['name'],
+                'robot_namespace': robot['name'],
+            }.items()
+        )
+    else:
+        spawn_entity_cmd = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(launch_file_dir, 'spawn_robots_sdf.launch.py')
+            ),
+            launch_arguments={
+                'use_sim_time': use_sim_time,
+                'urdf_path': robot['sdf_path'],
+                'x_pose': TextSubstitution(text=str(robot['x_pose'])),
+                'y_pose': TextSubstitution(text=str(robot['y_pose'])),
+                'z_pose': TextSubstitution(text=str(robot['z_pose'])),
+                'yaw': TextSubstitution(text=str(robot['yaw'])), 
+                'robot_name': robot['name'],
+                'robot_namespace': robot['name'],
+            }.items()
+        )
+    
+    return spawn_entity_cmd
+
 def execute_multi_robot(context, *args, **kwargs):
     launch_file_dir = os.path.join(get_package_share_directory('multi_robot_bringup'), 'launch', 'utils')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
@@ -54,63 +118,9 @@ def execute_multi_robot(context, *args, **kwargs):
     )
     nodes_exec.append(gzclient_cmd)
 
-    for robot in robots:
-        extension_file = robot['urdf_path'].split(".")[-1]
-        if extension_file == "urdf":
-            robot_state_publisher_cmd = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(
-                    os.path.join(launch_file_dir, 'robots_states_publishers.launch.py')
-                ),
-                launch_arguments={
-                    'use_sim_time': use_sim_time,
-                    'robot_namespace': robot['name'],
-                    'urdf_path': robot['urdf_path'],
-                }.items()
-            )
-        else:
-            robot_state_publisher_cmd = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(
-                    os.path.join(launch_file_dir, 'robots_states_publishers_xacro.launch.py')
-                ),
-                launch_arguments={
-                    'use_sim_time': use_sim_time,
-                    'robot_namespace': robot['name'],
-                    'xacro_path': robot['urdf_path'],
-                }.items()
-            )
-
-        if robot["sdf_path"] == "":
-            spawn_entity_cmd = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(
-                    os.path.join(launch_file_dir, 'spawn_robots_topic.launch.py')
-                ),
-                launch_arguments={
-                    'use_sim_time': use_sim_time,
-                    'robot_description_topic': '/'+robot['name']+'/robot_description',
-                    'x_pose': TextSubstitution(text=str(robot['x_pose'])),
-                    'y_pose': TextSubstitution(text=str(robot['y_pose'])),
-                    'z_pose': TextSubstitution(text=str(robot['z_pose'])),
-                    'yaw': TextSubstitution(text=str(robot['yaw'])), 
-                    'robot_name': robot['name'],
-                    'robot_namespace': robot['name'],
-                }.items()
-            )
-        else:
-            spawn_entity_cmd = IncludeLaunchDescription(
-                PythonLaunchDescriptionSource(
-                    os.path.join(launch_file_dir, 'spawn_robots.launch.py')
-                ),
-                launch_arguments={
-                    'use_sim_time': use_sim_time,
-                    'urdf_path': robot['sdf_path'],
-                    'x_pose': TextSubstitution(text=str(robot['x_pose'])),
-                    'y_pose': TextSubstitution(text=str(robot['y_pose'])),
-                    'z_pose': TextSubstitution(text=str(robot['z_pose'])),
-                    'yaw': TextSubstitution(text=str(robot['yaw'])), 
-                    'robot_name': robot['name'],
-                    'robot_namespace': robot['name'],
-                }.items()
-            )
+    for robot in robots:        
+        robot_state_publisher_cmd = select_rsp_launch(launch_file_dir, robot, use_sim_time)
+        spawn_entity_cmd = select_spawn_launch(launch_file_dir, robot, use_sim_time)
 
         navigation_robot_cmd = IncludeLaunchDescription(
             PythonLaunchDescriptionSource(
