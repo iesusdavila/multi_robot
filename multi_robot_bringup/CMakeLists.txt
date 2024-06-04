@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.8)
-project(multi_robot_gazebo)
+project(multi_robot_bringup)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
@@ -31,7 +31,7 @@ if(BUILD_TESTING)
 endif()
 
 install(
-  DIRECTORY models worlds
+  DIRECTORY config launch
   DESTINATION share/${PROJECT_NAME}
 )
 

@@ -27,7 +27,7 @@ def generate_robots(sim_param_file):
     return robots_data['robots'], robots_data['world']
 
 def execute_multi_robot(context, *args, **kwargs):
-    launch_file_dir = os.path.join(get_package_share_directory('multi_robot_gazebo'), 'launch', 'utils')
+    launch_file_dir = os.path.join(get_package_share_directory('multi_robot_bringup'), 'launch', 'utils')
     pkg_gazebo_ros = get_package_share_directory('gazebo_ros')
     pkg_multi_robot_navigation = get_package_share_directory('multi_robot_navigation')
 
