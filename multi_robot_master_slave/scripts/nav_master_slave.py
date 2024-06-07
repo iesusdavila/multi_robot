@@ -151,30 +151,32 @@ def cancel_task_slave(nav_slave, slave_status):
 async def send_goal_other_robot(name_master, nav_slave, goal_poses_robot, feedback):
     await asyncio.sleep(1)
 
+    name_slave = nav_slave.getNameRobot()
+    
     found_free_slave, free_slave = find_free_slave(name_master)
-    found_slave_with_one_task, slave_with_one_task = find_slave_with_one_task(name_master, nav_slave.getNameRobot())
+    found_slave_with_one_task, slave_with_one_task = find_slave_with_one_task(name_master, name_slave)
 
     await asyncio.sleep(1)
 
     list_slaves = system_master_slave[name_master]["slaves"]
     if found_free_slave:
         nav_free_slave = list_slaves[free_slave]["nav_class"]
-        list_slaves[free_slave]["task_queue"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
+        list_slaves[free_slave]["task_queue"][name_slave] = goal_poses_robot[feedback.current_waypoint:]
 
-        await asyncio.gather(navigate_robot_slave(nav_free_slave, name_master, nav_slave.getNameRobot()))
+        await asyncio.gather(navigate_robot_slave(nav_free_slave, name_master, name_slave))
     elif found_slave_with_one_task:
         nav_slave_with_one_task = list_slaves[slave_with_one_task]["nav_class"]
-        list_slaves[slave_with_one_task]["task_queue"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
+        list_slaves[slave_with_one_task]["task_queue"][name_slave] = goal_poses_robot[feedback.current_waypoint:]
 
         nav_slave.info("El esclavo " + slave_with_one_task + " tiene una tarea pendiente, se le asignará esta tarea")
-        await asyncio.gather(navigate_robot_slave(nav_slave_with_one_task, name_master, nav_slave.getNameRobot()))
+        await asyncio.gather(navigate_robot_slave(nav_slave_with_one_task, name_master, name_slave))
     else:
         nav_master = system_master_slave[name_master]["nav_class"]
-        system_master_slave[name_master]["slave_tasks"][nav_slave.getNameRobot()] = goal_poses_robot[feedback.current_waypoint:]
+        system_master_slave[name_master]["slave_tasks"][name_slave] = goal_poses_robot[feedback.current_waypoint:]
         
         is_master_busy(nav_master.getFeedback())
 
-        await asyncio.gather(navigate_robot_master(nav_master, nav_slave.getNameRobot()))
+        await asyncio.gather(navigate_robot_master(nav_master, name_slave))
 
 # ---------------------------------------------
 # --- Verificar si el maestro esta ocupado ----
