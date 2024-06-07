@@ -35,7 +35,8 @@ def generate_message(name_robot, current_waypoint, number_poses, nav_time=(0,0,0
 # ---------------------------------------------
 async def navigate_robot_master(nav_master, name_slave):
 
-    list_slave_tasks = system_master_slave[nav_master.getNameRobot()]["slave_tasks"]
+    name_master = nav_master.getNameRobot()
+    list_slave_tasks = system_master_slave[name_master]["slave_tasks"]
     while list_slave_tasks:
 
         name_first_slave = list(list_slave_tasks)[0]
@@ -59,11 +60,10 @@ async def navigate_robot_master(nav_master, name_slave):
 
                     max_time = nav_master.getTimeNav(Duration(seconds=600.0).nanoseconds)
                     
-                    generate_message(nav_master.getNameRobot(), feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time, name_slave)
+                    generate_message(name_master, feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time, name_slave)
 
                     if now - nav_start >= Duration(seconds=600.0):
-                        nav_master.cancelTask()
-                        system_master_slave[name_master]["status"] = False
+                        cancel_task_master(nav_master, name_master)
 
             nav_master.info("Tarea completada")
             list_slave_tasks.pop(name_first_slave)
@@ -71,7 +71,7 @@ async def navigate_robot_master(nav_master, name_slave):
 
             break
         else:
-            print("MSJ del maestro: " + nav_master.getNameRobot() + " => El esclavo " + name_slave + " esta en cola de espera. Ahora ejecuto la tarea del robot " + name_first_slave)
+            print("MSJ del maestro: " + name_master + " => El esclavo " + name_slave + " esta en cola de espera. Ahora ejecuto la tarea del robot " + name_first_slave)
             await asyncio.sleep(1)
 
 # ---------------------------------------------
@@ -79,13 +79,14 @@ async def navigate_robot_master(nav_master, name_slave):
 # ---------------------------------------------
 async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
 
-    slave = system_master_slave[name_master]["slaves"][nav_slave.getNameRobot()]
+    name_slave = nav_slave.getNameRobot()
+    slave = system_master_slave[name_master]["slaves"][name_slave]
     while slave["task_queue"]:
 
         name_first_slave_task = list(slave["task_queue"])[0]
 
         if name_slave_pend is None:
-            name_slave_pend = nav_slave.getNameRobot()
+            name_slave_pend = name_slave
 
         if name_first_slave_task == name_slave_pend:
             
@@ -105,32 +106,44 @@ async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
                     duration_max_time = Duration(seconds=10.0)
                     max_time = nav_slave.getTimeNav(duration_max_time.nanoseconds)
                     
-                    if name_slave_pend == nav_slave.getNameRobot():
-                        generate_message(nav_slave.getNameRobot(), feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time)
+                    if name_slave_pend == name_slave:
+                        generate_message(name_slave, feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time)
                     else:
-                        generate_message(nav_slave.getNameRobot(), feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time, name_slave_pend)
+                        generate_message(name_slave, feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time, name_slave_pend)
 
                     if now - nav_start >= Duration(seconds=600.0):
-                        nav_master.cancelTask()
-                        slave["status"] = False
+                        cancel_task_slave(nav_slave, slave)
                     
                     if now - nav_start >= duration_max_time:
                         routes_remaining = len(goal_poses_robot) - (feedback.current_waypoint)
-                        nav_slave.cancelTask()
-                        slave["status"] = False
+                        cancel_task_slave(nav_slave, slave)
                         
                         if routes_remaining > 0:
                             await send_goal_other_robot(name_master, nav_slave, goal_poses_robot, feedback)
 
             nav_slave.info("Tarea completada")
-            system_master_slave[name_master]["slaves"][nav_slave.getNameRobot()]["task_queue"].pop(name_first_slave_task)
+            system_master_slave[name_master]["slaves"][name_slave]["task_queue"].pop(name_first_slave_task)
             nav_slave.info("Tarea eliminada de la lista de tareas pendientes")
 
             break
         else:
-            if name_slave_pend != nav_slave.getNameRobot():
+            if name_slave_pend != name_slave:
                 print("El esclavo " + name_slave_pend + " esta esperando que la tarea enviada al esclavo " + name_first_slave_task + " sea completada una vez que dicho esclavo complete su tarea interna.")
             await asyncio.sleep(1)
+
+# ---------------------------------------------
+# ------- Cancelar tarea del maestro ----------
+# ---------------------------------------------
+def cancel_task_master(nav_master):
+    nav_master.cancelTask()
+    system_master_slave[nav_master.getNameRobot()]["status"] = False
+
+# ---------------------------------------------
+# -------- Cancelar tarea del esclavo ---------
+# ---------------------------------------------
+def cancel_task_slave(nav_slave, slave_status):
+    nav_slave.cancelTask()
+    slave["status"] = False
 
 # ---------------------------------------------
 #  Delegar tarea a otro robot para que la haga 
