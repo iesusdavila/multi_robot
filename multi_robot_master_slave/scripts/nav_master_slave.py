@@ -141,7 +141,7 @@ def cancel_task_master(nav_master):
 # ---------------------------------------------
 # -------- Cancelar tarea del esclavo ---------
 # ---------------------------------------------
-def cancel_task_slave(nav_slave, slave_status):
+def cancel_task_slave(nav_slave, slave):
     nav_slave.cancelTask()
     slave["status"] = False
 
