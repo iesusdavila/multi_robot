@@ -12,15 +12,15 @@ robots:
     urdf_path: "/home/rov-robot/colcon_ws/src/andino/andino_gz_classic/urdf/andino_gz_classic.xacro"
     sdf_path: ""
     nav_param_path: "/home/rov-robot/colcon_ws/src/andino/andino_navigation/params/nav2_params.yaml"
-  - name: tb2
+  - name: limo1
     x_pose: -1.5
     y_pose: 0.5
     z_pose: 0.01
     yaw: 0.0
     rviz_view: "false"
-    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle.urdf"
-    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf"
-    nav_param_path: "/home/rov-robot/colcon_ws/src/turtlebot3/turtlebot3_navigation2/param/waffle.yaml"
+    urdf_path: "/home/rov-robot/colcon_ws/src/limo_ros2/limo_description/urdf/limo_four_diff.xacro"
+    sdf_path: ""
+    nav_param_path: "/home/rov-robot/colcon_ws/src/limo_ros2/limo_bringup/param/navigation2.yaml"
   - name: tb3
     x_pose: -6.5
     y_pose: -2.0
