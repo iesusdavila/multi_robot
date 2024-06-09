@@ -3,15 +3,15 @@ world:
   world_path: "/home/rov-robot/project_ws/src/multi_robot/multi_robot_gazebo/worlds/house.world"
   map_path: "/home/rov-robot/project_ws/src/multi_robot/multi_robot_navigation/maps/map_house.yaml"
 robots:
-  - name: andino1
+  - name: rover1
     x_pose: 6.0
     y_pose: -1.0
     z_pose: 0.01
     yaw: 1.5708
     rviz_view: "false"
-    urdf_path: "/home/rov-robot/colcon_ws/src/andino/andino_gz_classic/urdf/andino_gz_classic.xacro"
+    urdf_path: "/home/rov-robot/colcon_ws/src/car_gps/rtk_gps_description/urdf/adl200_description.urdf.xacro"
     sdf_path: ""
-    nav_param_path: "/home/rov-robot/colcon_ws/src/andino/andino_navigation/params/nav2_params.yaml"
+    nav_param_path: "/home/rov-robot/colcon_ws/src/car_gps/rtk_gps_navigation/param/rtk.yaml"
   - name: limo1
     x_pose: -1.5
     y_pose: 0.5

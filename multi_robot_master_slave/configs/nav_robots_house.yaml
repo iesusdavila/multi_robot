@@ -1,5 +1,5 @@
 robots:
-  - name: andino1
+  - name: rover1
     is_master: false
     name_master: limo1
     pose_goal_1:
