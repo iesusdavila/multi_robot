@@ -10,7 +10,7 @@ class Handler(ABC):
 
 class FreeSlaveHandler(Handler):
     def handle_request(self, request):
-        found_free_slave, free_slave = self.find_free_slave(request['name_master'], request)
+        found_free_slave, free_slave = self.find_free_slave(request['name_master'], request['system_master_slave'])
         if found_free_slave:
             nav_free_slave = request['slaves'][free_slave]["nav_class"]
             request['slaves'][free_slave]["task_queue"][request['name_slave']] = request['goal_poses'][request['current_waypoint']:]
@@ -19,12 +19,12 @@ class FreeSlaveHandler(Handler):
             return self._successor.handle_request(request)
         return None, False
 
-    def find_free_slave(self, name_master, request):
+    def find_free_slave(self, name_master, system_master_slave):
         print("---> Buscando esclavo libre que pueda realizar la tarea... <---")
         find_free_slave = False
         slave = None
         
-        list_slaves = request['system_master_slave'][name_master]["slaves"]
+        list_slaves = system_master_slave[name_master]["slaves"]
         for name_slave_iter in list_slaves:
             if len(list_slaves[name_slave_iter]["task_queue"]) == 0:
                 find_free_slave = True
@@ -35,7 +35,7 @@ class FreeSlaveHandler(Handler):
 
 class SlaveWithOneTaskHandler(Handler):
     def handle_request(self, request):
-        found_slave_with_one_task, slave_with_one_task = self.find_slave_with_one_task(request['name_master'], request['name_slave'], request)
+        found_slave_with_one_task, slave_with_one_task = self.find_slave_with_one_task(request['name_master'], request['name_slave'], request['system_master_slave'])
         if found_slave_with_one_task:
             nav_slave_with_one_task = request['slaves'][slave_with_one_task]["nav_class"]
             request['slaves'][slave_with_one_task]["task_queue"][request['name_slave']] = request['goal_poses'][request['current_waypoint']:]
@@ -44,12 +44,12 @@ class SlaveWithOneTaskHandler(Handler):
             return self._successor.handle_request(request)
         return None, False
 
-    def find_slave_with_one_task(self, name_master, name_slave, request):
+    def find_slave_with_one_task(self, name_master, name_slave, system_master_slave):
         print("---> Buscando esclavo con una tarea pendiente que pueda realizar la tarea... <---")
         find_slave_with_one_task = False
         slave = None
         
-        list_slaves = request['system_master_slave'][name_master]["slaves"]
+        list_slaves = system_master_slave[name_master]["slaves"]
         for name_slave_iter in list_slaves:
             if len(list_slaves[name_slave_iter]["task_queue"]) == 1:
                 find_slave_with_one_task = True

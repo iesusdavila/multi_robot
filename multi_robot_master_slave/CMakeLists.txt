@@ -27,7 +27,7 @@ install(TARGETS ${EXEC_NAME}
 )
 
 install(PROGRAMS
-  scripts/utils/ChainOfResponsibility.py
+  scripts/utils/DelegateTask.py
   scripts/utils/NavigationClient.py
   scripts/utils/DataRobots.py
   scripts/utils/PoseUtils.py

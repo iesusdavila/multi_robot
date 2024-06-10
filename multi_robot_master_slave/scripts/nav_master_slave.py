@@ -2,14 +2,14 @@
 
 import rclpy
 from rclpy.node import Node
+from rclpy.duration import Duration
 from NavigationClient import NavigationRobot, TaskResult
+from DelegateTask import FreeSlaveHandler, SlaveWithOneTaskHandler, MasterHandler
 from PoseUtils import PoseUtils
 from DataRobots import DataRobots
 import time
-from rclpy.duration import Duration
 import asyncio
 import sys
-from ChainOfResponsibility import FreeSlaveHandler, SlaveWithOneTaskHandler, MasterHandler
 
 system_master_slave = {}
 
@@ -132,20 +132,6 @@ async def navigate_robot_slave(nav_slave, name_master, name_slave_pend=None):
             await asyncio.sleep(1)
 
 # ---------------------------------------------
-# ------- Cancelar tarea del maestro ----------
-# ---------------------------------------------
-def cancel_task_master(nav_master):
-    nav_master.cancelTask()
-    system_master_slave[nav_master.getNameRobot()]["status"] = False
-
-# ---------------------------------------------
-# -------- Cancelar tarea del esclavo ---------
-# ---------------------------------------------
-def cancel_task_slave(nav_slave, slave):
-    nav_slave.cancelTask()
-    slave["status"] = False
-
-# ---------------------------------------------
 #  Delegar tarea a otro robot para que la haga 
 # ---------------------------------------------
 async def send_goal_other_robot(name_master, nav_slave, goal_poses_robot, feedback):
@@ -168,11 +154,21 @@ async def send_goal_other_robot(name_master, nav_slave, goal_poses_robot, feedba
     if is_free_or_one_task:
         await asyncio.gather(navigate_robot_slave(handler, name_master, name_slave))
     else:
-        print("HOLAAAAAAAAAAAAAAAAAAAAAAA")
-        print("VA EL MAESTROOOOOO")
         await asyncio.gather(navigate_robot_master(handler, name_slave))
-        print("CHAOOOOOO")
-        print("VA EL MAESTROOOOOO")
+
+# ---------------------------------------------
+# ------- Cancelar tarea del maestro ----------
+# ---------------------------------------------
+def cancel_task_master(nav_master):
+    nav_master.cancelTask()
+    system_master_slave[nav_master.getNameRobot()]["status"] = False
+
+# ---------------------------------------------
+# -------- Cancelar tarea del esclavo ---------
+# ---------------------------------------------
+def cancel_task_slave(nav_slave, slave):
+    nav_slave.cancelTask()
+    slave["status"] = False
 
 # ---------------------------------------------
 # ------------ Función principal --------------
