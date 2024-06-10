@@ -3,10 +3,10 @@
 import rclpy
 from rclpy.node import Node
 from rclpy.duration import Duration
-from NavigationClient import NavigationRobot, TaskResult
-from DelegateTask import FreeSlaveHandler, SlaveWithOneTaskHandler, MasterHandler
-from PoseUtils import PoseUtils
-from DataRobots import DataRobots
+from navigation_client import NavigationRobot, TaskResult
+from delegate_task import FreeSlaveHandler, SlaveWithOneTaskHandler, MasterHandler
+from pose_utils import PoseUtils
+from data_robots import DataRobots
 import time
 import asyncio
 import sys

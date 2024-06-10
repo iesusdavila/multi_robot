@@ -27,10 +27,10 @@ install(TARGETS ${EXEC_NAME}
 )
 
 install(PROGRAMS
-  scripts/utils/DelegateTask.py
-  scripts/utils/NavigationClient.py
-  scripts/utils/DataRobots.py
-  scripts/utils/PoseUtils.py
+  scripts/utils/delegate_task.py
+  scripts/utils/navigation_client.py
+  scripts/utils/data_robots.py
+  scripts/utils/pose_utils.py
   scripts/nav_master_slave.py
   DESTINATION lib/${PROJECT_NAME}
 )
