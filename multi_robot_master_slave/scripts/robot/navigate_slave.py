@@ -12,7 +12,7 @@ class NavigateSlave(Robot):
         self.name_master = name_master
         self.name_slave_pend = name_slave_pend
 
-    async def navigate_robot_slave(self, system_master_slave):
+    async def navigate_robot_slave(self, system_master_slave, duration_max_time=Duration(seconds=10.0)):
 
         name_slave = self.nav_slave.getNameRobot()
         slave = system_master_slave[self.name_master]["slaves"][name_slave]
@@ -38,7 +38,6 @@ class NavigateSlave(Robot):
                         now = self.nav_slave.get_clock().now()
                         nav_time = self.nav_slave.getTimeNav(now.nanoseconds - nav_start.nanoseconds)
                         
-                        duration_max_time = Duration(seconds=10.0)
                         max_time = self.nav_slave.getTimeNav(duration_max_time.nanoseconds)
                         
                         if self.name_slave_pend == name_slave:

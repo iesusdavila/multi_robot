@@ -9,7 +9,7 @@ class NavigateMaster(Robot):
         self.nav_master = nav_master
         self.name_slave = name_slave
 
-    async def navigate_robot_master(self, system_master_slave):
+    async def navigate_robot_master(self, system_master_slave, duration_max_time=Duration(seconds=600.0)):
         name_master = self.nav_master.getNameRobot()
         list_slave_tasks = system_master_slave[name_master]["slave_tasks"]
         while list_slave_tasks:
@@ -33,11 +33,11 @@ class NavigateMaster(Robot):
                         now = self.nav_master.get_clock().now()
                         nav_time = self.nav_master.getTimeNav(now.nanoseconds - nav_start.nanoseconds)
 
-                        max_time = self.nav_master.getTimeNav(Duration(seconds=600.0).nanoseconds)
+                        max_time = self.nav_master.getTimeNav(duration_max_time.nanoseconds)
                         
                         super().generate_message(name_master, feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time, self.name_slave)
 
-                        if now - nav_start >= Duration(seconds=600.0):
+                        if now - nav_start >= duration_max_time:
                             system_master_slave[name_master]["status"] = super().cancel_task(self.nav_master)
 
                 self.nav_master.info("Tarea completada")
