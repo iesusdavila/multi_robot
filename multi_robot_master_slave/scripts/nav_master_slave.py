@@ -2,13 +2,10 @@
 
 import rclpy
 from rclpy.node import Node
-from rclpy.duration import Duration
-from navigation_client import NavigationRobot, TaskResult
-from navigate_master import NavigateMaster
+from navigation_client import NavigationRobot
 from navigate_slave import NavigateSlave
 from pose_utils import PoseUtils
 from data_robots import DataRobots
-import time
 import asyncio
 import sys
 
