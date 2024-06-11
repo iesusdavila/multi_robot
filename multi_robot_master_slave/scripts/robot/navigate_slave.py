@@ -88,14 +88,14 @@ class NavigateSlave():
         await asyncio.sleep(1)
 
         name_slave = nav_slave.getNameRobot()
+        nav_master = system_master_slave[name_master]["nav_class"]
+        list_slaves = system_master_slave[name_master]["slaves"]
         
         request = {
-            'system_master_slave': system_master_slave,
-            'name_master': name_master,
-            'name_slave': name_slave,
+            'dict_master': system_master_slave[name_master],
+            'nav_slave': nav_slave,
             'goal_poses': goal_poses_robot,
             'current_waypoint': feedback.current_waypoint,
-            'slaves': system_master_slave[name_master]["slaves"]
         }
 
         free_slave_handler = FreeSlaveHandler()
