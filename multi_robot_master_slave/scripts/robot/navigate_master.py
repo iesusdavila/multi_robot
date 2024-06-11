@@ -2,8 +2,9 @@
 
 from rclpy.duration import Duration
 import asyncio
+from robot import Robot
 
-class NavigateMaster():
+class NavigateMaster(Robot):
     def __init__(self, nav_master, name_slave):
         self.nav_master = nav_master
         self.name_slave = name_slave
@@ -34,10 +35,10 @@ class NavigateMaster():
 
                         max_time = self.nav_master.getTimeNav(Duration(seconds=600.0).nanoseconds)
                         
-                        self.generate_message(name_master, feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time, self.name_slave)
+                        super().generate_message(name_master, feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time, self.name_slave)
 
                         if now - nav_start >= Duration(seconds=600.0):
-                            self.cancel_task_master(system_master_slave)
+                            system_master_slave[name_master]["status"] = super().cancel_task(self.nav_master)
 
                 self.nav_master.info("Tarea completada")
                 list_slave_tasks.pop(name_first_slave)
@@ -47,22 +48,3 @@ class NavigateMaster():
             else:
                 print("MSJ del maestro: " + name_master + " => El esclavo " + self.name_slave + " está en cola de espera. Ahora ejecuto la tarea del robot " + name_first_slave)
                 await asyncio.sleep(1)
-
-    def cancel_task_master(self, system_master_slave):
-        self.nav_master.cancelTask()
-        system_master_slave[self.nav_master.getNameRobot()]["status"] = False
-
-    def generate_message(self, name_robot, current_waypoint, number_poses, nav_time=(0,0,0), max_time=(0,0,0), name_slave=None):
-        # tiempo transcurrido de navegación
-        hour_nav, min_nav, sec_nav = nav_time
-        # tiempo máximo de navegación
-        hour_max, min_max, sec_max = max_time
-
-        msg = 'Executing current waypoint ' + str(name_robot) + ': '+ str(current_waypoint + 1) + '/' + str(number_poses) 
-        msg += ' - ' + str(hour_nav-19) + ':' + str(min_nav) + ':' + str(sec_nav) + ' / ' + str(hour_max-19) + ':' + str(min_max) + ':' + str(sec_max)
-
-        # validar si la navegación es tarea pendiente de un esclavo
-        if name_slave is not None: 
-            msg += " del esclavo: " + name_slave
-        
-        print(msg)
