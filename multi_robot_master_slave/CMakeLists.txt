@@ -31,6 +31,8 @@ install(PROGRAMS
   scripts/utils/navigation_client.py
   scripts/utils/data_robots.py
   scripts/utils/pose_utils.py
+  scripts/robot/navigate_master.py
+  scripts/robot/navigate_slave.py
   scripts/nav_master_slave.py
   DESTINATION lib/${PROJECT_NAME}
 )
