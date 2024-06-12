@@ -2,6 +2,7 @@ robots:
   - name: rover1
     is_master: false
     name_master: limo1
+    duration_max_time: 0.15
     pose_goal_1:
       x: -2.0
       y: 4.5
@@ -12,6 +13,7 @@ robots:
   - name: tb3
     is_master: false
     name_master: limo1
+    duration_max_time: 5.0
     pose_goal_1:
       x: -6.5
       y: 2.0

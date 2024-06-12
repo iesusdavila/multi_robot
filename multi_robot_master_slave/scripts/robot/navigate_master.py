@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 from rclpy.duration import Duration
+from navigation_client import TaskResult
 import asyncio
 from robot import Robot
 
@@ -9,7 +10,7 @@ class NavigateMaster(Robot):
         self.nav_master = nav_master
         self.name_slave = name_slave
 
-    async def navigate_robot_master(self, system_master_slave, duration_max_time=Duration(seconds=600.0)):
+    async def navigate_robot_master(self, system_master_slave):
         name_master = self.nav_master.getNameRobot()
         list_slave_tasks = system_master_slave[name_master]["slave_tasks"]
         while list_slave_tasks:
@@ -19,7 +20,7 @@ class NavigateMaster(Robot):
             if name_first_slave == self.name_slave:
                 self.nav_master.info("Completando tarea pendiente del robot esclavo: " + self.name_slave)
 
-                goal_poses_robot = list_slave_tasks[name_first_slave]
+                goal_poses_robot = list_slave_tasks[name_first_slave]["goal_poses"]
                 self.nav_master.followWaypoints(goal_poses_robot)
 
                 nav_start = self.nav_master.get_clock().now()
@@ -32,17 +33,24 @@ class NavigateMaster(Robot):
                     if feedback:
                         now = self.nav_master.get_clock().now()
                         nav_time = self.nav_master.getTimeNav(now.nanoseconds - nav_start.nanoseconds)
-
+                        
+                        duration_max_time_m=list_slave_tasks[name_first_slave]["duration_max_time"]
+                        duration_max_time=Duration(seconds=duration_max_time_m*60)
                         max_time = self.nav_master.getTimeNav(duration_max_time.nanoseconds)
                         
                         super().generate_message(name_master, feedback.current_waypoint, len(goal_poses_robot), nav_time, max_time, self.name_slave)
 
                         if now - nav_start >= duration_max_time:
                             system_master_slave[name_master]["status"] = super().cancel_task(self.nav_master)
+                            self.nav_master.info("Tarea NO completada en el tiempo establecido.")
+                            list_slave_tasks.pop(name_first_slave)
+                            self.nav_master.info("Tarea eliminada de la lista de tareas pendientes.")
+                            self.nav_master.info("Hubo un problema con la tarea y NO se logro completar.")
 
-                self.nav_master.info("Tarea completada")
-                list_slave_tasks.pop(name_first_slave)
-                self.nav_master.info("Tarea eliminada de la lista de tareas pendientes")
+                if self.nav_master.getResult() == TaskResult.SUCCEEDED:
+                    self.nav_master.info("Tarea completada")
+                    list_slave_tasks.pop(name_first_slave)
+                    self.nav_master.info("Tarea eliminada de la lista de tareas pendientes.")
 
                 break
             else:

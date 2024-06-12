@@ -76,10 +76,12 @@ class SlaveWithOneTaskHandler(AbstractHandler):
         slave = None
         
         for name_slave_iter in list_slaves:
-            if len(list_slaves[name_slave_iter]["task_queue"]) == 1 and list_slaves[name_slave_iter]["status"] == True and name_slave_iter != name_slave:
-                find_slave_with_one_task = True
-                slave = name_slave_iter
-                break
+            if list_slaves[name_slave_iter]["status"] == True and name_slave != name_slave_iter:
+                for task_name in list_slaves[name_slave_iter]["task_queue"]:
+                    if len(list_slaves[name_slave_iter]["task_queue"][task_name]["goal_poses"]) == 1 and name_slave != task_name:
+                        find_slave_with_one_task = True
+                        slave = name_slave_iter
+                        break
         
         return find_slave_with_one_task, slave
 
@@ -91,7 +93,9 @@ class MasterHandler(AbstractHandler):
         nav_master = request["dict_master"]["nav_class"]
         name_master = nav_master.getNameRobot()
 
-        request['dict_master']["slave_tasks"][name_slave] = request['goal_poses'][request['current_waypoint']:]
+        goal_poses = request['goal_poses'][request['current_waypoint']:]
+        duration_max_time = request['duration_max_time']
+        request['dict_master']["slave_tasks"][name_slave] = {'goal_poses': goal_poses, 'duration_max_time': duration_max_time}
         if request['dict_master']["slave_tasks"][name_slave]:
             self.is_master_busy(nav_master.getFeedback())
             nav_master.info(f'Para el esclavo {name_slave}, yo el robot {name_master} soy el maestro para ejecutar su tarea.')

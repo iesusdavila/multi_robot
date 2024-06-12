@@ -50,7 +50,7 @@ async def main(args=None):
                 system_master_slave[name_master_robot] = {"nav_class": nav_master, "slaves": {}, "slave_tasks": {}, "status": True}
             
             dict_master = system_master_slave[name_master_robot]
-            dict_master["slaves"][name_robot] = {"nav_class": nav_slave, "master": name_master_robot, "tasks": goal_poses_robot, "task_queue": {name_robot: goal_poses_robot},"status": True}
+            dict_master["slaves"][name_robot] = {"nav_class": nav_slave, "master": name_master_robot, "tasks": goal_poses_robot, "task_queue": {name_robot: {'duration_max_time':robot['duration_max_time'], 'goal_poses':goal_poses_robot}},"status": True}
             
             slave_robot = NavigateSlave(nav_slave, name_master_robot, name_robot)
             list_nav_func.append(slave_robot.navigate_robot_slave(system_master_slave))
