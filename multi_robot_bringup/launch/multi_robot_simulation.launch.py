@@ -118,8 +118,10 @@ def execute_multi_robot(context, *args, **kwargs):
     )
     nodes_exec.append(gzclient_cmd)
 
-    for robot in robots:        
-        robot_state_publisher_cmd = select_rsp_launch(launch_file_dir, robot, use_sim_time)
+    for robot in robots:
+        robot_state_publisher_cmd = None        
+        if robot['urdf_path'] != "":
+            robot_state_publisher_cmd = select_rsp_launch(launch_file_dir, robot, use_sim_time)
         spawn_entity_cmd = select_spawn_launch(launch_file_dir, robot, use_sim_time)
 
         navigation_robot_cmd = IncludeLaunchDescription(
@@ -142,7 +144,8 @@ def execute_multi_robot(context, *args, **kwargs):
             condition=IfCondition(navigation)
         )
 
-        nodes_exec.append(robot_state_publisher_cmd)
+        if robot_state_publisher_cmd != None:
+            nodes_exec.append(robot_state_publisher_cmd)
         nodes_exec.append(spawn_entity_cmd)
         nodes_exec.append(navigation_robot_cmd)
 
