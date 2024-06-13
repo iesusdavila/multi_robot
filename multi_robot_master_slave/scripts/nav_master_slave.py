@@ -26,7 +26,8 @@ async def main(args=None):
     data_nav_robots = DataRobots(yaml_file_path)
 
     list_nav_func = []
-    for robot in data_nav_robots.generate_robots():
+    configs_robots = data_nav_robots.generate_robots()
+    for robot in configs_robots:
 
         name_robot = robot['name']
         is_master = robot['is_master']
@@ -34,7 +35,7 @@ async def main(args=None):
         if is_master and not(name_robot in system_master_slave):
             nav_master = NavigationRobot(namespace=name_robot)
 
-            system_master_slave[name_robot] = {"nav_class": nav_master, "slaves": {}, "slave_tasks": {}, "status": True}
+            system_master_slave[name_robot] = {"nav_class": nav_master, "same_time_task": robot['same_time_task'], "slaves": {}, "slave_tasks": {}, "status": True}
         
         if not is_master:
             nav_slave = NavigationRobot(namespace=name_robot)
@@ -46,8 +47,9 @@ async def main(args=None):
 
             if not(name_master_robot in system_master_slave):
                 nav_master = NavigationRobot(namespace=name_master_robot)
+                same_time_task_master = data_nav_robots.get_time_task_master(configs_robots, name_master_robot)
 
-                system_master_slave[name_master_robot] = {"nav_class": nav_master, "slaves": {}, "slave_tasks": {}, "status": True}
+                system_master_slave[name_master_robot] = {"nav_class": nav_master, "same_time_task": same_time_task_master, "slaves": {}, "slave_tasks": {}, "status": True}
             
             dict_master = system_master_slave[name_master_robot]
             dict_master["slaves"][name_robot] = {"nav_class": nav_slave, "master": name_master_robot, "tasks": goal_poses_robot, "task_queue": {name_robot: {'duration_max_time':robot['duration_max_time'], 'goal_poses':goal_poses_robot}},"status": True}
