@@ -16,6 +16,9 @@ class DataRobots:
     
     def get_name(self, robot):
         return robot['name']
+    
+    def get_time_task_master(self, configs_robots, name_master_robot):
+        return next((robot for robot in configs_robots if robot['name'] == name_master_robot), None)['same_time_task']
 
     def get_number_poses(self, robot):
         return len(robot) - 4

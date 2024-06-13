@@ -10,6 +10,7 @@ robots:
       yaw: 1.5708
   - name: limo1
     is_master: true
+    same_time_task: false
   - name: tb3
     is_master: false
     name_master: limo1

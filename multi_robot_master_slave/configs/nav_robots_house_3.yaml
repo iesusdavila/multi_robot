@@ -15,10 +15,11 @@ robots:
       yaw: 1.5708
   - name: limo1
     is_master: true
+    same_time_task: true
   - name: tb3
     is_master: false
     name_master: limo1
-    duration_max_time: 4.0
+    duration_max_time: 0.7
     pose_goal_1:
       x: -6.5
       y: 2.0

@@ -15,6 +15,7 @@ robots:
       yaw: 1.5708
   - name: tb2
     is_master: true
+    same_time_task: false
   - name: tb4
     is_master: false
     name_master: tb5
@@ -40,3 +41,4 @@ robots:
       yaw: 0.0
   - name: tb5
     is_master: true
+    same_time_task: true
