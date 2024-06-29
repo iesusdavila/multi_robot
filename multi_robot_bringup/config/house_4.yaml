@@ -3,30 +3,30 @@ world:
   world_path: "/home/rov-robot/project_ws/src/multi_robot/multi_robot_gazebo/worlds/house.world"
   map_path: "/home/rov-robot/project_ws/src/multi_robot/multi_robot_navigation/maps/map_house.yaml"
 robots:
-  - name: rover1
+  - name: mp500
     x_pose: 6.0
     y_pose: -1.0
     z_pose: 0.01
     yaw: 1.5708
-    rviz_view: "true"
-    urdf_path: "/home/rov-robot/colcon_ws/src/neo_simulation2/robots/mp_400/mp_400.urdf"
-    sdf_path: "/home/rov-robot/colcon_ws/src/neo_simulation2/robots/mp_400/mp_400.urdf"
-    nav_param_path: "/home/rov-robot/colcon_ws/src/neo_simulation2/configs/mp_400/navigation.yaml"
-  - name: limo1
+    rviz_view: "false"
+    urdf_path: "/home/rov-robot/colcon_ws/src/neo_simulation2/robots/mp_500/mp_500.urdf"
+    sdf_path: ""
+    nav_param_path: "/home/rov-robot/colcon_ws/src/neo_simulation2/configs/mp_500/navigation.yaml"
+  - name: mpo500
     x_pose: -1.5
     y_pose: 0.5
     z_pose: 0.01
     yaw: 0.0
     rviz_view: "false"
     urdf_path: "/home/rov-robot/colcon_ws/src/neo_simulation2/robots/mpo_500/mpo_500.urdf"
-    sdf_path: "/home/rov-robot/colcon_ws/src/neo_simulation2/robots/mpo_500/mpo_500.urdf"
+    sdf_path: ""
     nav_param_path: "/home/rov-robot/colcon_ws/src/neo_simulation2/configs/mpo_500/navigation.yaml"
-  - name: tb3
+  - name: mpo700
     x_pose: -6.5
     y_pose: -2.0
     z_pose: 0.01
     yaw: 1.5708
     rviz_view: "false"
     urdf_path: "/home/rov-robot/colcon_ws/src/neo_simulation2/robots/mpo_700/mpo_700.urdf"
-    sdf_path: "/home/rov-robot/colcon_ws/src/neo_simulation2/robots/mpo_700/mpo_700.urdf"
+    sdf_path: ""
     nav_param_path: "/home/rov-robot/colcon_ws/src/neo_simulation2/configs/mpo_700/navigation.yaml"
