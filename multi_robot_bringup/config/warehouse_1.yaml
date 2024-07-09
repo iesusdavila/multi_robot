@@ -1,0 +1,14 @@
+world:
+  name: house_world
+  world_path: "/home/rov-robot/colcon_ws/src/aws-robomaker-small-warehouse-world/worlds/no_roof_small_warehouse/no_roof_small_warehouse.world"
+  map_path: "/home/rov-robot/colcon_ws/src/aws-robomaker-small-warehouse-world/maps/005/map.yaml"
+robots:
+  - name: tb1
+    x_pose: 6.0
+    y_pose: -1.0
+    z_pose: 0.01
+    yaw: 1.5708
+    rviz_view: "true"
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf"
+    nav_param_path: "/home/rov-robot/colcon_ws/src/turtlebot3/turtlebot3_navigation2/param/waffle.yaml"
