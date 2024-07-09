@@ -3,7 +3,7 @@ world:
   world_path: "/home/rov-robot/project_ws/src/multi_robot/multi_robot_gazebo/worlds/house.world"
   map_path: "/home/rov-robot/project_ws/src/multi_robot/multi_robot_navigation/maps/map_house.yaml"
 robots:
-  - name: mp500
+  - name: diff500
     x_pose: 6.0
     y_pose: -1.0
     z_pose: 0.01
@@ -12,7 +12,7 @@ robots:
     urdf_path: "/home/rov-robot/colcon_ws/src/neo_simulation2/robots/mp_500/mp_500.urdf"
     sdf_path: ""
     nav_param_path: "/home/rov-robot/colcon_ws/src/neo_simulation2/configs/mp_500/navigation.yaml"
-  - name: mpo500
+  - name: omni500
     x_pose: -1.5
     y_pose: 0.5
     z_pose: 0.01

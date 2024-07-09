@@ -1,0 +1,23 @@
+world:
+  name: house_world
+  world_path: "/home/rov-robot/project_ws/src/multi_robot/multi_robot_gazebo/worlds/house.world"
+  map_path: "/home/rov-robot/project_ws/src/multi_robot/multi_robot_navigation/maps/map_house.yaml"
+robots:
+  - name: car_main
+    x_pose: -6.5
+    y_pose: 0.0
+    z_pose: 0.01
+    yaw: 1.5708
+    rviz_view: "true"
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_burger.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf"
+    nav_param_path: "/home/rov-robot/colcon_ws/src/turtlebot3/turtlebot3_navigation2/param/burger.yaml"
+  - name: car_follower
+    x_pose: -6.5
+    y_pose: -0.3
+    z_pose: 0.01
+    yaw: 1.5708
+    rviz_view: "false"
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_burger.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf"
+    nav_param_path: "/home/rov-robot/colcon_ws/src/turtlebot3/turtlebot3_navigation2/param/burger.yaml"
