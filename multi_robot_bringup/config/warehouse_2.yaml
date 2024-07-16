@@ -1,0 +1,41 @@
+world:
+  name: warehouse_world
+  world_path: "/home/rov-robot/colcon_ws/src/aws-robomaker-small-warehouse-world/worlds/no_roof_small_warehouse/no_roof_small_warehouse.world"
+  map_path: "/home/rov-robot/colcon_ws/src/aws-robomaker-small-warehouse-world/maps/005/map.yaml"
+robots:
+  - name: tb1
+    x_pose: 0.2
+    y_pose: 0.3
+    z_pose: 0.01
+    yaw: 0.0
+    rviz_view: "false"
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_burger.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf"
+    nav_param_path: "/home/rov-robot/colcon_ws/src/turtlebot3/turtlebot3_navigation2/param/burger.yaml"
+  - name: tb2
+    x_pose: 0.2
+    y_pose: -0.1
+    z_pose: 0.01
+    yaw: 0.0
+    rviz_view: "false"
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_burger.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf"
+    nav_param_path: "/home/rov-robot/colcon_ws/src/turtlebot3/turtlebot3_navigation2/param/burger.yaml"
+  - name: limo1
+    x_pose: 0.1
+    y_pose: -0.5
+    z_pose: 0.01
+    yaw: 0.0
+    rviz_view: "false"
+    urdf_path: "/home/rov-robot/colcon_ws/src/limo_ros2/limo_description/urdf/limo_four_diff.xacro"
+    sdf_path: ""
+    nav_param_path: "/home/rov-robot/colcon_ws/src/limo_ros2/limo_bringup/param/navigation2_ack.yaml"
+  - name: limo2
+    x_pose: 0.1
+    y_pose: -0.9
+    z_pose: 0.01
+    yaw: 0.0
+    rviz_view: "false"
+    urdf_path: "/home/rov-robot/colcon_ws/src/limo_ros2/limo_description/urdf/limo_four_diff.xacro"
+    sdf_path: ""
+    nav_param_path: "/home/rov-robot/colcon_ws/src/limo_ros2/limo_bringup/param/navigation2_ack.yaml"
