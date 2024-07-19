@@ -9,8 +9,8 @@ robots:
     z_pose: 0.01
     yaw: 1.5708
     rviz_view: "true"
-    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_burger.urdf"
-    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf"
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations_mod/turtlebot3_gazebo_mod/urdf/turtlebot3_burger.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations_mod/turtlebot3_gazebo_mod/models/turtlebot3_burger/model.sdf"
     nav_param_path: "/home/rov-robot/colcon_ws/src/turtlebot3/turtlebot3_navigation2/param/burger.yaml"
   - name: car_follower
     x_pose: -6.5
@@ -18,6 +18,6 @@ robots:
     z_pose: 0.01
     yaw: 1.5708
     rviz_view: "false"
-    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_burger.urdf"
-    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf"
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations_mod/turtlebot3_gazebo_mod/urdf/turtlebot3_burger.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations_mod/turtlebot3_gazebo_mod/models/turtlebot3_burger/model.sdf"
     nav_param_path: "/home/rov-robot/colcon_ws/src/turtlebot3/turtlebot3_navigation2/param/burger.yaml"
