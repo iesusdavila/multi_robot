@@ -1,0 +1,59 @@
+world:
+  name: warehouse_world
+  world_path: "/home/rov-robot/colcon_ws/src/aws-robomaker-small-warehouse-world/worlds/no_roof_small_warehouse/no_roof_small_warehouse.world"
+  map_path: "/home/rov-robot/colcon_ws/src/aws-robomaker-small-warehouse-world/maps/005/map.yaml"
+robots:
+  - name: waffle_pi1
+    x_pose: 0.2
+    y_pose: 0.3
+    z_pose: 0.01
+    yaw: 0.0
+    rviz_view: "false"
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle_pi.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle_pi/model.sdf"
+    nav_param_path: "/home/rov-robot/colcon_ws/src/turtlebot3/turtlebot3_navigation2/param/waffle_pi.yaml"
+  - name: waffle1
+    x_pose: 0.2
+    y_pose: -0.1
+    z_pose: 0.01
+    yaw: 0.0
+    rviz_view: "false"
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf"
+    nav_param_path: "/home/rov-robot/colcon_ws/src/turtlebot3/turtlebot3_navigation2/param/waffle.yaml"
+  - name: waffle2
+    x_pose: 0.2
+    y_pose: -0.5
+    z_pose: 0.01
+    yaw: 0.0
+    rviz_view: "false"
+    urdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle.urdf"
+    sdf_path: "/home/rov-robot/colcon_ws/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf"
+    nav_param_path: "/home/rov-robot/colcon_ws/src/turtlebot3/turtlebot3_navigation2/param/waffle.yaml"
+  - name: rover1
+    x_pose: -2.1
+    y_pose: 0.3
+    z_pose: 0.01
+    yaw: 3.1416
+    rviz_view: "false"
+    urdf_path: "/home/rov-robot/colcon_ws/src/car_gps/rtk_gps_description/urdf/adl200_description.urdf.xacro"
+    sdf_path: ""
+    nav_param_path: "/home/rov-robot/colcon_ws/src/car_gps/rtk_gps_navigation/param/rtk.yaml"
+  - name: rover2
+    x_pose: -2.1
+    y_pose: -0.3
+    z_pose: 0.01
+    yaw: 3.1416
+    rviz_view: "false"
+    urdf_path: "/home/rov-robot/colcon_ws/src/car_gps/rtk_gps_description/urdf/adl200_description.urdf.xacro"
+    sdf_path: ""
+    nav_param_path: "/home/rov-robot/colcon_ws/src/car_gps/rtk_gps_navigation/param/rtk.yaml"
+  - name: rover3
+    x_pose: -2.1
+    y_pose: -0.9
+    z_pose: 0.01
+    yaw: 3.1416
+    rviz_view: "false"
+    urdf_path: "/home/rov-robot/colcon_ws/src/car_gps/rtk_gps_description/urdf/adl200_description.urdf.xacro"
+    sdf_path: ""
+    nav_param_path: "/home/rov-robot/colcon_ws/src/car_gps/rtk_gps_navigation/param/rtk.yaml"
