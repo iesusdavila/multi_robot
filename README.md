@@ -1,5 +1,6 @@
-
-# Multi Robot System
+<h1 align="center">
+  Multi Robot System
+</h1>
 
 Multi Robot System developed for ROS2 Humble, allows the easy incorporation of several robot models with little configuration. There is no limit on the number of robots, if you incorporate UGV you can provide your parameter file for autonomous navigation.
 
