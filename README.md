@@ -99,7 +99,7 @@ Using 3 robots UGV in house: mpo700, mpo500 and mp500
 
 Projects using this Multi Robot System
 
-[Software Arquitecture Master-Slave for UGV](https://github.com/iesusdavila/master_slave_mrs)
+[Software Architecture Master-Slave for UGV](https://github.com/iesusdavila/master_slave_mrs)
 
 [Follower Robot using only LIDAR 2D](https://github.com/iesusdavila/follower_car)
 
