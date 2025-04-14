@@ -1,0 +1,104 @@
+world:
+  name: house_world
+  world_path: "/home/iesus/ros2_ws/src/multi_robot/multi_robot_gazebo/worlds/offices.world"
+  map_path: "/home/iesus/ros2_ws/src/multi_robot/multi_robot_navigation/maps/map_house.yaml"
+robots:
+  - name: tb1
+    x_pose: -5.5
+    y_pose: -4.1
+    z_pose: 0.01
+    yaw: 1.5708
+    rviz_view: "false"
+    urdf_path: "/home/iesus/ros2_ws_products/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_burger.urdf"
+    sdf_path: "/home/iesus/ros2_ws_products/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf"
+    nav_param_path: "/home/iesus/ros2_ws_products/src/turtlebot3/turtlebot3_navigation2/param/burger.yaml"
+  # - name: tb2
+  #   x_pose: -5.0
+  #   y_pose: -4.1
+  #   z_pose: 0.01
+  #   yaw: 1.5708
+  #   rviz_view: "false"
+  #   urdf_path: "/home/iesus/ros2_ws_products/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle.urdf"
+  #   sdf_path: "/home/iesus/ros2_ws_products/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf"
+  #   nav_param_path: "/home/iesus/ros2_ws_products/src/turtlebot3/turtlebot3_navigation2/param/waffle.yaml"
+  # - name: tb3
+  #   x_pose: -4.5
+  #   y_pose: -4.1
+  #   z_pose: 0.01
+  #   yaw: 1.5708
+  #   rviz_view: "false"
+  #   urdf_path: "/home/iesus/ros2_ws_products/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle_pi.urdf"
+  #   sdf_path: "/home/iesus/ros2_ws_products/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle_pi/model.sdf"
+  #   nav_param_path: "/home/iesus/ros2_ws_products/src/turtlebot3/turtlebot3_navigation2/param/waffle_pi.yaml"
+  # - name: tb4
+  #   x_pose: -4.0
+  #   y_pose: -4.1
+  #   z_pose: 0.01
+  #   yaw: 1.5708
+  #   rviz_view: "false"
+  #   urdf_path: "/home/iesus/ros2_ws_products/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle.urdf"
+  #   sdf_path: "/home/iesus/ros2_ws_products/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf"
+  #   nav_param_path: "/home/iesus/ros2_ws_products/src/turtlebot3/turtlebot3_navigation2/param/waffle.yaml"
+  # - name: tb5
+  #   x_pose: -3.5
+  #   y_pose: -4.1
+  #   z_pose: 0.01
+  #   yaw: 1.5708
+  #   rviz_view: "false"
+  #   urdf_path: "/home/iesus/ros2_ws_products/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_burger.urdf"
+  #   sdf_path: "/home/iesus/ros2_ws_products/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf"
+  #   nav_param_path: "/home/iesus/ros2_ws_products/src/turtlebot3/turtlebot3_navigation2/param/burger.yaml"
+  # - name: limo1
+  #   x_pose: 2.80
+  #   y_pose: -2.15
+  #   z_pose: 0.01
+  #   yaw: 1.5708
+  #   rviz_view: "false"
+  #   urdf_path: "/home/iesus/ros2_ws_products/src/limo_ros2/limo_description/urdf/limo_four_diff.xacro"
+  #   sdf_path: ""
+  #   nav_param_path: "/home/iesus/ros2_ws_products/src/limo_ros2/limo_bringup/param/navigation2_ack.yaml"
+  # - name: limo2
+  #   x_pose: 3.10
+  #   y_pose: -2.15
+  #   z_pose: 0.01
+  #   yaw: 1.5708
+  #   rviz_view: "false"
+  #   urdf_path: "/home/iesus/ros2_ws_products/src/limo_ros2/limo_description/urdf/limo_four_diff.xacro"
+  #   sdf_path: ""
+  #   nav_param_path: "/home/iesus/ros2_ws_products/src/limo_ros2/limo_bringup/param/navigation2_ack.yaml"
+  # - name: limo3
+  #   x_pose: 3.40
+  #   y_pose: -2.15
+  #   z_pose: 0.01
+  #   yaw: 1.5708
+  #   rviz_view: "false"
+  #   urdf_path: "/home/iesus/ros2_ws_products/src/limo_ros2/limo_description/urdf/limo_four_diff.xacro"
+  #   sdf_path: ""
+  #   nav_param_path: "/home/iesus/ros2_ws_products/src/limo_ros2/limo_bringup/param/navigation2_ack.yaml"
+  # - name: tb6
+  #   x_pose: 3.2
+  #   y_pose: -8.5
+  #   z_pose: 0.01
+  #   yaw: 1.5708
+  #   rviz_view: "false"
+  #   urdf_path: "/home/iesus/ros2_ws_products/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_burger.urdf"
+  #   sdf_path: "/home/iesus/ros2_ws_products/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_burger/model.sdf"
+  #   nav_param_path: "/home/iesus/ros2_ws_products/src/turtlebot3/turtlebot3_navigation2/param/burger.yaml"
+  # - name: limo4
+  #   x_pose: 3.60
+  #   y_pose: -8.6
+  #   z_pose: 0.01
+  #   yaw: 1.5708
+  #   rviz_view: "false"
+  #   urdf_path: "/home/iesus/ros2_ws_products/src/limo_ros2/limo_description/urdf/limo_four_diff.xacro"
+  #   sdf_path: ""
+  #   nav_param_path: "/home/iesus/ros2_ws_products/src/limo_ros2/limo_bringup/param/navigation2_ack.yaml"
+  # - name: tb7
+  #   x_pose: 4.1
+  #   y_pose: -8.5
+  #   z_pose: 0.01
+  #   yaw: 1.5708
+  #   rviz_view: "false"
+  #   urdf_path: "/home/iesus/ros2_ws_products/src/turtlebot3_simulations/turtlebot3_gazebo/urdf/turtlebot3_waffle.urdf"
+  #   sdf_path: "/home/iesus/ros2_ws_products/src/turtlebot3_simulations/turtlebot3_gazebo/models/turtlebot3_waffle/model.sdf"
+  #   nav_param_path: "/home/iesus/ros2_ws_products/src/turtlebot3/turtlebot3_navigation2/param/waffle.yaml"
